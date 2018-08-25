@@ -348,14 +348,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb06833710854144cb65eab8756e11bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_playerInputs:
-  - m_horizontalAxis: Horizontal
-    m_verticalAxis: Vertical
-    m_dashButton: Dash
-    m_jumpButton: Jump
-    m_tossButton: 
-    m_attackButton: 
-    m_grabButton: 
+  m_dashButton: 14
+  m_jumpButton: 0
+  m_tossButton: 1
+  m_attackButton: 2
+  m_grabButton: 3
+  m_triggMinRatio: 0.3
 --- !u!1 &685887609
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,6 +563,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_nbPlayer: 1
+  m_width: 0.5
+  m_height: 0.5
   m_animator: {fileID: 0}
   m_isRunningBoolParam: IsRunning
   m_isDashingBoolParam: IsDashing
@@ -573,7 +573,6 @@ MonoBehaviour:
   m_onDeath: OnDeath
   m_minSpeedToStartWalkAnim: 0.2
   m_minSpeedToStopWalkAnim: 0.2
-  m_maxDeltaYForPlane: 0.05
   m_gravityRatio: 0.1
   m_maxWalkSpeed: 16
   m_walkAcc: 15
@@ -615,9 +614,7 @@ MonoBehaviour:
   m_dashCoolDownDuration: 0.5
   m_jumpInitSpeed: 20
   m_jumpCooldownDuration: 1
-  m_width: 0.5
-  m_height: 0.5
-  m_groundOffset: 1
+  m_useAnimation: 0
 --- !u!65 &852309445
 BoxCollider:
   m_ObjectHideFlags: 0
