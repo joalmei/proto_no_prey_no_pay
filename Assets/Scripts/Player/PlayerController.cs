@@ -8,9 +8,10 @@ public class PlayerController : MonoBehaviour
     {
         Idle,
         Walking,
-        Jumping,
+        Jumping,        // Normal || Wall
         Falling,
-        Dashing
+        Dashing,
+        Sliding         // Wall
     }
 
 
@@ -65,13 +66,18 @@ public class PlayerController : MonoBehaviour
     public float            m_jumpInitSpeed             = 20;
     public float            m_jumpCooldownDuration      = 1;
 
+    [Header("Wall Jump / Slide")]
+    public float            m_wallBoostRatio            = .1f;
+    public float            m_maxSlideSpeed             = 1f;
+    private float           m_slideAcc                  = 15f;
+
     // SFX
     //[Header("SFX")]
     //public AudioSource      m_dashSFX;
     //public AudioSource      m_jetpackSFX;
     //public AudioSource      m_deathSFX;
     //public AudioSource      m_damageSFX;
-    
+
 
     // -------------------------------- PRIVATE ATTRIBUTES ------------------------------- //
     // LOCOMOTION: WALK
@@ -86,6 +92,10 @@ public class PlayerController : MonoBehaviour
     private Vector2         m_dashDirection             = Vector2.zero;
     private float           m_dashCooldownTimer         = 0;
 
+    // LOCOMOTION: WALL SNAP
+
+
+    // GENERAL
     private eStates         m_state;
 
     private int             m_nbLives                   = 3;
@@ -177,17 +187,20 @@ public class PlayerController : MonoBehaviour
         // update transform
         Vector3 initialPos  = this.transform.position;
 
+        bool isWallSnapped  = CheckWalls();
+
         bool isWalking      = UpdateWalk(_inputHorizontal);
-        
-        UpdateJump(_doJump);
 
         bool isDashing      = UpdateDash(_inputHorizontal, _inputVertical, _doDash);
+
+        UpdateJump(_doJump, isWallSnapped);
         
-        UpdateGravity();
+        UpdateGravity(isWallSnapped);
+
+        UpdateCollisions(initialPos, this.transform.position);
 
         Vector3 finalPos    = this.transform.position;
-
-        Vector3 deltaPos = finalPos - initialPos;
+        Vector3 deltaPos    = finalPos - initialPos;
 
         // update animation state
         eStates nextState;
@@ -262,7 +275,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // ======================================================================================
-    private bool UpdateJump(bool _doJump)
+    private bool UpdateJump(bool _doJump, bool _wallSnap)
     {
         m_jumpCooldownTimer -= GameMgr.DeltaTime;
 
@@ -270,7 +283,7 @@ public class PlayerController : MonoBehaviour
         if (_doJump && m_jumpCooldownTimer < 0)
         {
             m_jumpCooldownTimer = m_dashCoolDownDuration;
-            m_gravSpeed         = -m_jumpInitSpeed;
+            m_gravSpeed         = - m_jumpInitSpeed * (_wallSnap ? 1 + m_wallBoostRatio : 1.0f);
             return true;
         }
 
@@ -306,8 +319,7 @@ public class PlayerController : MonoBehaviour
         // Dash if necessary
         if (m_dashTimer < m_dashDuration)
         {
-            this.transform.position = CheckCollision(   this.transform.position,
-                                                        this.transform.position + new Vector3(m_dashDirection.x, m_dashDirection.y) * GameMgr.DeltaTime * m_dashMaxSpeed * m_dashSpeed.Evaluate(m_dashTimer / m_dashDuration));
+            this.transform.position = this.transform.position + new Vector3(m_dashDirection.x, m_dashDirection.y) * GameMgr.DeltaTime * m_dashMaxSpeed * m_dashSpeed.Evaluate(m_dashTimer / m_dashDuration);
 
             animate = true;
         }
@@ -316,47 +328,34 @@ public class PlayerController : MonoBehaviour
     }
 
     // ======================================================================================
-    private bool UpdateGravity()
+    private bool UpdateGravity(bool _wallSnap)
     {
         // TODO : MAKE THIS WORLK PROPERY!
         m_gravSpeed += Physics.gravity.magnitude * m_gravityRatio;
-        Vector3 finalPos = CheckCollision(this.transform.position,
-                                            this.transform.position + GameMgr.DeltaTime * m_gravSpeed * Vector3.down);
 
-        if (this.transform.position == finalPos)
+        if (_wallSnap && m_gravSpeed > 0)
+        {
+            m_gravSpeed = Mathf.Lerp(m_gravSpeed, m_maxSlideSpeed, m_slideAcc * Time.deltaTime);
+        }
+
+        this.transform.position = this.transform.position + GameMgr.DeltaTime * m_gravSpeed * Vector3.down;
+        
+        return true;
+    }
+
+    // ======================================================================================
+    private bool UpdateCollisions(Vector3 _startPos, Vector3 _endPos)
+    {
+        Vector3 finalPos = CheckCollision(_startPos, _endPos);
+
+        if (_startPos.y == finalPos.y)
         {
             m_gravSpeed = 0;
-            return false;
         }
 
         this.transform.position = finalPos;
 
         return true;
-    }
-
-    // ======================================================================================
-    private Vector3 CheckCollision(Vector3 _startPos, Vector3 _endPos)
-    {
-        RaycastHit hitInfo;
-        Vector3 direction   = _endPos - _startPos;
-        Vector3 finalEndPos = _endPos;
-
-        if (direction.y < 0)
-        {
-            if (Physics.Raycast(_startPos, direction + m_collisionEpsilon * direction.normalized, out hitInfo, direction.magnitude + m_collisionEpsilon, ~(1 << this.gameObject.layer)))
-            {
-                Ground gnd = hitInfo.collider.gameObject.GetComponent<Ground>();
-
-                if (gnd != null)
-                {
-                    finalEndPos.y = gnd.SurfaceY() + m_collisionEpsilon;
-                }
-            }
-        }
-
-        finalEndPos.x = Mathf.Clamp(finalEndPos.x, SceneMgr.MinX + m_width / 2, SceneMgr.MaxX - m_width / 2);
-        finalEndPos.y = Mathf.Clamp(finalEndPos.y, SceneMgr.MinY, SceneMgr.MaxY - m_height);
-        return finalEndPos;
     }
 
     // ======================================================================================
@@ -399,5 +398,41 @@ public class PlayerController : MonoBehaviour
                 m_animator.SetBool(m_isRunningBoolParam, false);
                 break;
         }
+    }
+
+    // ======================================================================================
+    private Vector3 CheckCollision(Vector3 _startPos, Vector3 _endPos)
+    {
+        RaycastHit hitInfo;
+        Vector3 direction   = _endPos - _startPos;
+        Vector3 finalEndPos = _endPos;
+
+        if (direction.y < 0)
+        {
+            if (Physics.Raycast(_startPos, direction + m_collisionEpsilon * direction.normalized, out hitInfo, direction.magnitude + m_collisionEpsilon, ~(1 << this.gameObject.layer)))
+            {
+                Ground gnd = hitInfo.collider.gameObject.GetComponent<Ground>();
+
+                if (gnd != null)
+                {
+                    finalEndPos.y = gnd.SurfaceY() + m_collisionEpsilon;
+                }
+            }
+        }
+
+        finalEndPos.x = Mathf.Clamp(finalEndPos.x, SceneMgr.MinX + m_width / 2, SceneMgr.MaxX - m_width / 2);
+        finalEndPos.y = Mathf.Clamp(finalEndPos.y, SceneMgr.MinY, SceneMgr.MaxY - m_height);
+        return finalEndPos;
+    }
+
+    private bool CheckWalls ()
+    {
+        Vector3 lWall = this.transform.position - ( m_collisionEpsilon + m_width / 2 ) * Vector3.right;
+        Vector3 rWall = this.transform.position + ( m_collisionEpsilon + m_width / 2 ) * Vector3.right;
+
+        if (lWall.x <= SceneMgr.MinX || rWall.x >= SceneMgr.MaxX)
+            return true;
+
+        return Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right) || Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right + (m_collisionEpsilon + m_width / 2) * Vector3.right);
     }
 }
