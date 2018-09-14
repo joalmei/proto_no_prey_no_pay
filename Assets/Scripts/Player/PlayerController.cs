@@ -14,12 +14,19 @@ public class PlayerController : MonoBehaviour
         Sliding         // Wall
     }
 
+    public enum ePlayer
+    {
+        Player1 = 1,
+        Player2 = 2,
+        Player3 = 3,
+        Player4 = 4
+    }
+
 
     // -------------------------------- PUBLIC ATTRIBUTES -------------------------------- //
     // BASIC
     [Header("Player")]
-    [Range(1, 4)]
-    public int              m_nbPlayer                  = 1;
+    public ePlayer          m_player                    = ePlayer.Player1;
 
     [Header("Dimensions")]
     public float            m_width                     = .1f;
@@ -144,15 +151,18 @@ public class PlayerController : MonoBehaviour
         }
 
         // get input
-        float horizontal    = InputMgr.GetAxis(m_nbPlayer, InputMgr.eAxis.HORIZONTAL);   //Input.GetAxis("Horizontal");
-        float vertical      = InputMgr.GetAxis(m_nbPlayer, InputMgr.eAxis.VERTICAL);     //Input.GetAxis("Vertical");
-        bool  doJump        = InputMgr.GetButton(m_nbPlayer, InputMgr.eButton.JUMP);     //Input.GetButtonDown("Jump");
-        bool  doDash        = InputMgr.GetButton(m_nbPlayer, InputMgr.eButton.DASH);     //Input.GetButtonDown("Dash");
+        float horizontal    = InputMgr.GetAxis((int) m_player,   InputMgr.eAxis.HORIZONTAL);    //Input.GetAxis("Horizontal");
+        float vertical      = InputMgr.GetAxis((int) m_player,   InputMgr.eAxis.VERTICAL);      //Input.GetAxis("Vertical");
+        bool  doJump        = InputMgr.GetButton((int) m_player, InputMgr.eButton.JUMP);        //Input.GetButtonDown("Jump");
+        bool  doDash        = InputMgr.GetButton((int) m_player, InputMgr.eButton.DASH);        //Input.GetButtonDown("Dash");
         
 
         // update position
         UpdateTransform(horizontal, vertical, doJump, doDash);
 
+
+        // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
+        // TODO: Test with anims and update if necessary
         if (m_animator != null)
             UpdateAnimator();
     }
@@ -280,7 +290,7 @@ public class PlayerController : MonoBehaviour
         m_jumpCooldownTimer -= GameMgr.DeltaTime;
 
         // Init Dash
-        if (_doJump && m_jumpCooldownTimer < 0)
+        if (_doJump && m_jumpCooldownTimer < 0 && ( m_state == eStates.Idle || m_state == eStates.Walking || m_state == eStates.Sliding) )
         {
             m_jumpCooldownTimer = m_dashCoolDownDuration;
             m_gravSpeed         = - m_jumpInitSpeed * (_wallSnap ? 1 + m_wallBoostRatio : 1.0f);
@@ -330,7 +340,6 @@ public class PlayerController : MonoBehaviour
     // ======================================================================================
     private bool UpdateGravity(bool _wallSnap)
     {
-        // TODO : MAKE THIS WORLK PROPERY!
         m_gravSpeed += Physics.gravity.magnitude * m_gravityRatio;
 
         if (_wallSnap && m_gravSpeed > 0)
@@ -361,6 +370,9 @@ public class PlayerController : MonoBehaviour
     // ======================================================================================
     private void UpdateAnimator()
     {
+        // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
+        // TODO: Test with anims and update if necessary
+
         switch (m_state)
         {
             case eStates.Idle:
@@ -435,4 +447,34 @@ public class PlayerController : MonoBehaviour
 
         return Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right) || Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right + (m_collisionEpsilon + m_width / 2) * Vector3.right);
     }
+
+    // TODO: Jump in the wall's normal, not its tangent!
+    // !!!!!!!!!! SIMPLER IDEA: Just jump in the opposite dir of input.x
+    // because, if we are "wall snipped", it is in the opposite direction...
+    // PROBLEM! It can be wall snapped, but with x == 0
+    /*
+    private bool CheckWalls(out int _normal)
+    {
+        _normal = 0;
+        Vector3 lWall = this.transform.position - (m_collisionEpsilon + m_width / 2) * Vector3.right;
+        Vector3 rWall = this.transform.position + (m_collisionEpsilon + m_width / 2) * Vector3.right;
+
+        if (lWall.x <= SceneMgr.MinX || rWall.x >= SceneMgr.MaxX)
+            return true;
+
+        if (Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right))
+        {
+            // |->
+            _normal = -1;
+            return true;
+        }
+        else if (Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right + (m_collisionEpsilon + m_width / 2) * Vector3.right))
+        {
+            // <-|
+            return true;
+        }
+
+        return false;
+    }
+    */
 }
