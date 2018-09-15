@@ -78,6 +78,11 @@ public class PlayerController : MonoBehaviour
     public float            m_maxSlideSpeed             = 1f;
     private float           m_slideAcc                  = 15f;
 
+    //WEAPONS
+    public List<GameObject> WeaponList = new List<GameObject>();
+    public GameObject EquippedWeapon = null; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
+    public GameObject WeaponObject = null; //n pensei num nome melhor, é o objeto do item q foi pegado
+
     // SFX
     //[Header("SFX")]
     //public AudioSource      m_dashSFX;
@@ -160,13 +165,23 @@ public class PlayerController : MonoBehaviour
         // update position
         UpdateTransform(horizontal, vertical, doJump, doDash);
 
+        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB)){
+            if(WeaponList.Count > 0){
+               PickupWeapon();
+            }
+        }
+
+        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.TOSS)){
+            if(EquippedWeapon != null){
+                ThrowWeapon();
+            }
+        }
 
         // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
         // TODO: Test with anims and update if necessary
         if (m_animator != null)
             UpdateAnimator();
     }
-
 
     // ======================================================================================
     public void TakeDamage()
@@ -477,4 +492,28 @@ public class PlayerController : MonoBehaviour
         return false;
     }
     */
+
+    private void PickupWeapon(){
+         int currWeapon = 0;
+                float closestDist = Vector2.Distance(this.transform.position, WeaponList[0].transform.position);
+                float currentDist;
+
+                for(int i = 1; i < WeaponList.Count; i++){
+                    currentDist = Vector2.Distance(this.transform.position, WeaponList[i].transform.position);
+                    if(currentDist < closestDist){
+                        closestDist = currentDist;
+                        currWeapon = i;
+                    }
+                }
+
+                if(EquippedWeapon == null){
+                    //drop weapon
+                }
+                EquippedWeapon = WeaponList[currWeapon];
+                WeaponObject = WeaponList[currWeapon];
+    }
+
+    private void ThrowWeapon(){
+        
+    }
 }
