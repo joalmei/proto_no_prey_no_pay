@@ -80,9 +80,9 @@ public class PlayerController : MonoBehaviour
 
     //WEAPONS
     [Header("Weapons")]
-    public List<GameObject> WeaponList = new List<GameObject>();
-    public GameObject EquippedWeapon = null; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
-    public GameObject WeaponObject = null; //n pensei num nome melhor, é o objeto do item q foi pegado
+    public List<GameObject> WeaponList                  = new List<GameObject>();
+    public GameObject       EquippedWeapon              = null; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
+    public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
 
     // SFX
     //[Header("SFX")]
@@ -118,6 +118,8 @@ public class PlayerController : MonoBehaviour
     // DEFINES
     private const float     MIN_SPEED_TO_MOVE           = 0.1f;
     private const float     GROUND_Y_VALUE_TO_DELETE    = -2.5f;
+
+    private bool            grabButtonPressed           = false; //meio gambiarra mas n pensei numa maneira melhor de fazer
 
     // -------------------------------- EDITOR ATTRIBUTES -------------------------------- //
     [HideInInspector]
@@ -166,11 +168,12 @@ public class PlayerController : MonoBehaviour
         // update position
         UpdateTransform(horizontal, vertical, doJump, doDash);
 
-        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB)){
+        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB) && !grabButtonPressed){
             if(WeaponList.Count > 0){
                 PickupWeapon();
             }
         }
+        grabButtonPressed = InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB);
 
         if(InputMgr.GetButton((int) m_player, InputMgr.eButton.TOSS)){
             if(EquippedWeapon != null){
