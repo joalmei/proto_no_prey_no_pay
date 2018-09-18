@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour
     private float           m_slideAcc                  = 15f;
 
     //WEAPONS
+    [Header("Weapons")]
     public List<GameObject> WeaponList = new List<GameObject>();
     public GameObject EquippedWeapon = null; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
     public GameObject WeaponObject = null; //n pensei num nome melhor, é o objeto do item q foi pegado
@@ -167,7 +168,7 @@ public class PlayerController : MonoBehaviour
 
         if(InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB)){
             if(WeaponList.Count > 0){
-               PickupWeapon();
+                PickupWeapon();
             }
         }
 
@@ -494,26 +495,46 @@ public class PlayerController : MonoBehaviour
     */
 
     private void PickupWeapon(){
-         int currWeapon = 0;
-                float closestDist = Vector2.Distance(this.transform.position, WeaponList[0].transform.position);
-                float currentDist;
+        print("watch start");
+        var watch = System.Diagnostics.Stopwatch.StartNew();
 
-                for(int i = 1; i < WeaponList.Count; i++){
-                    currentDist = Vector2.Distance(this.transform.position, WeaponList[i].transform.position);
-                    if(currentDist < closestDist){
-                        closestDist = currentDist;
-                        currWeapon = i;
-                    }
-                }
+        int currWeapon = 0;
+ 
+        float closestDist = Vector2.Distance(this.transform.position, WeaponList[0].transform.position);
+        float currentDist;
 
-                if(EquippedWeapon == null){
-                    //drop weapon
-                }
-                EquippedWeapon = WeaponList[currWeapon];
-                WeaponObject = WeaponList[currWeapon];
+        for(int i = 1; i < WeaponList.Count; i++){
+            currentDist = Vector2.Distance(this.transform.position, WeaponList[i].transform.position);
+            if(currentDist < closestDist){
+                closestDist = currentDist;
+                currWeapon = i;
+            }
+        }
+        
+        if(EquippedWeapon != null){
+            WeaponObject.transform.position = this.transform.position;
+            ToggleWeaponActive(WeaponObject, true);
+        }
+        EquippedWeapon = WeaponList[currWeapon];
+        WeaponObject = WeaponList[currWeapon];
+        WeaponList.Remove(WeaponObject);
+        ToggleWeaponActive(WeaponObject, false);
+
+        watch.Stop();
+        var elapsedMs = watch.ElapsedMilliseconds;
+        print("time elapsed " + elapsedMs);
     }
 
     private void ThrowWeapon(){
-        
+        //inicialmente só vou fazer dropar a arma
+        WeaponObject.transform.position = this.transform.position;
+        ToggleWeaponActive(WeaponObject, true);
+        EquippedWeapon = null;
+        WeaponObject = null;
+    }
+
+    private void ToggleWeaponActive(GameObject WeaponObject, bool status){
+        WeaponObject.GetComponent<MeshRenderer>().enabled = status;
+        WeaponObject.GetComponent<BoxCollider>().enabled = status;
     }
 }
