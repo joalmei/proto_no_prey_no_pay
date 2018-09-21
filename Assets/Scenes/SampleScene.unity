@@ -648,7 +648,8 @@ MonoBehaviour:
   m_minSpeedToStopWalkAnim: 0.2
   m_gravityRatio: 0.1
   m_maxWalkSpeed: 16
-  m_walkAcc: 15
+  m_walkAcc: 50
+  m_walkAccDown: 5
   m_dashSpeed:
     serializedVersion: 2
     m_Curve:
@@ -691,6 +692,8 @@ MonoBehaviour:
   m_maxSlideSpeed: 1
   m_slideAcc: 15
   m_jumpEjectSpeed: 13
+  m_playerGrabExtraWidth: 0.5
+  m_useDebugMode: 0
   m_useAnimation: 0
 --- !u!65 &852309445
 BoxCollider:
@@ -1089,6 +1092,7 @@ MonoBehaviour:
   m_gravityRatio: 0.1
   m_maxWalkSpeed: 16
   m_walkAcc: 15
+  m_walkAccDown: 1
   m_dashSpeed:
     serializedVersion: 2
     m_Curve:
@@ -1131,6 +1135,8 @@ MonoBehaviour:
   m_maxSlideSpeed: 1
   m_slideAcc: 15
   m_jumpEjectSpeed: 2
+  m_playerGrabExtraWidth: 1
+  m_useDebugMode: 0
   m_useAnimation: 0
 --- !u!65 &1734404485
 BoxCollider:
