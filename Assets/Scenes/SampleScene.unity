@@ -689,6 +689,8 @@ MonoBehaviour:
   m_jumpCooldownDuration: 1
   m_wallBoostRatio: 0.1
   m_maxSlideSpeed: 1
+  m_slideAcc: 15
+  m_jumpEjectSpeed: 13
   m_useAnimation: 0
 --- !u!65 &852309445
 BoxCollider:
@@ -1127,6 +1129,8 @@ MonoBehaviour:
   m_jumpCooldownDuration: 1
   m_wallBoostRatio: 0.1
   m_maxSlideSpeed: 1
+  m_slideAcc: 15
+  m_jumpEjectSpeed: 2
   m_useAnimation: 0
 --- !u!65 &1734404485
 BoxCollider:
