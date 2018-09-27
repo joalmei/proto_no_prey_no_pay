@@ -63,7 +63,9 @@ public class PlayerController : MonoBehaviour
     [Header("Walk")]
     public float            m_maxWalkSpeed              = 7;
     public float            m_walkAcc                   = 1;
+    [ConditionalHide("m_useMomentum", true)]
     public float            m_walkAccDown               = 1;
+    public bool             m_useMomentum               = true;
 
     [Header("Dash")]
     public AnimationCurve   m_dashSpeed                 = new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 0));
@@ -295,14 +297,22 @@ public class PlayerController : MonoBehaviour
         bool animate = false;
 
         // walk
-        //float nextSpeed         = Mathf.Lerp(m_walkSpeed, m_maxWalkSpeed * _inputHorizontal, GameMgr.DeltaTime * m_walkAcc);
-        float nextSpeed = m_walkSpeed;
-        if (_inputHorizontal != 0)
-            nextSpeed += _inputHorizontal * m_walkAcc * GameMgr.DeltaTime;
-        else
-            nextSpeed = Mathf.Lerp(nextSpeed, 0, m_walkAccDown * GameMgr.DeltaTime);
+        float nextSpeed;
 
-        nextSpeed = nextSpeed >= 0 ? Mathf.Clamp(nextSpeed, 0, m_maxWalkSpeed) : Mathf.Clamp(nextSpeed, -m_maxWalkSpeed, 0);
+        if (!m_useMomentum)
+        {
+            nextSpeed = Mathf.Lerp(m_walkSpeed, m_maxWalkSpeed * _inputHorizontal, GameMgr.DeltaTime * m_walkAcc);
+        }
+        else
+        {
+            nextSpeed = m_walkSpeed;
+            if (_inputHorizontal != 0)
+                nextSpeed += _inputHorizontal * m_walkAcc * GameMgr.DeltaTime;
+            else
+                nextSpeed = Mathf.Lerp(nextSpeed, 0, m_walkAccDown * GameMgr.DeltaTime);
+
+            nextSpeed = nextSpeed >= 0 ? Mathf.Clamp(nextSpeed, 0, m_maxWalkSpeed) : Mathf.Clamp(nextSpeed, -m_maxWalkSpeed, 0);
+        }
 
         this.transform.position += Vector3.right * GameMgr.DeltaTime * nextSpeed;
 
