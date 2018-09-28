@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class PlayerController : MonoBehaviour
 {
     public enum eStates
@@ -439,6 +440,8 @@ public class PlayerController : MonoBehaviour
     // ======================================================================================
     private void UpdateAnimator()
     {
+        // TODO: Sliding, WallJumping, LedgeGrabbed
+
         // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
         // TODO: Test with anims and update if necessary
 

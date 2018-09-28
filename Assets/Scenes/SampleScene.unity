@@ -638,10 +638,10 @@ MonoBehaviour:
   m_player: 1
   m_width: 0.5
   m_height: 0.5
-  m_animator: {fileID: 0}
+  m_animator: {fileID: 1151687578}
   m_isRunningBoolParam: IsRunning
   m_isDashingBoolParam: IsDashing
-  m_isJumpingBoolParam: IsJetpackUp
+  m_isJumpingBoolParam: IsJumping
   m_isFallingBoolParam: IsFalling
   m_onDeath: OnDeath
   m_minSpeedToStartWalkAnim: 0.2
@@ -650,6 +650,7 @@ MonoBehaviour:
   m_maxWalkSpeed: 16
   m_walkAcc: 50
   m_walkAccDown: 5
+  m_useMomentum: 1
   m_dashSpeed:
     serializedVersion: 2
     m_Curve:
@@ -693,8 +694,11 @@ MonoBehaviour:
   m_slideAcc: 15
   m_jumpEjectSpeed: 13
   m_playerGrabExtraWidth: 0.5
+  WeaponList: []
+  EquippedWeapon: {fileID: 0}
+  WeaponObject: {fileID: 0}
   m_useDebugMode: 0
-  m_useAnimation: 0
+  m_useAnimation: 1
 --- !u!65 &852309445
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -771,6 +775,7 @@ GameObject:
   - component: {fileID: 1151687575}
   - component: {fileID: 1151687577}
   - component: {fileID: 1151687576}
+  - component: {fileID: 1151687578}
   m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
@@ -833,6 +838,24 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1151687574}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!95 &1151687578
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1151687574}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6cd04cfdca7407a4b8a00311898436ff, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1190550234
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,6 +1116,7 @@ MonoBehaviour:
   m_maxWalkSpeed: 16
   m_walkAcc: 15
   m_walkAccDown: 1
+  m_useMomentum: 1
   m_dashSpeed:
     serializedVersion: 2
     m_Curve:
@@ -1136,6 +1160,9 @@ MonoBehaviour:
   m_slideAcc: 15
   m_jumpEjectSpeed: 2
   m_playerGrabExtraWidth: 1
+  WeaponList: []
+  EquippedWeapon: {fileID: 0}
+  WeaponObject: {fileID: 0}
   m_useDebugMode: 0
   m_useAnimation: 0
 --- !u!65 &1734404485
