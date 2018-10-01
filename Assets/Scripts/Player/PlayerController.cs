@@ -2,31 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO : Modularize Animation and SFX
+// All Animation bhv is in PlayerAnimatorController and
+// All SFX bhv is in PlayerSFXController
+
+// TODO : Input as MSGs
+
+[RequireComponent(typeof(PlayerAnimatorController))]
+[ExecuteInEditMode]
 public class PlayerController : MonoBehaviour
 {
-    public enum eStates
-    {
-        Idle,
-        Walking,
-        Jumping,        // Normal || Wall
-        Falling,
-        Dashing,
-        Sliding         // Wall
-    }
-
+    // --------------------------------- PUBLIC AUX ENUMS -------------------------------- //
     public enum ePlayer
     {
         Player1 = 1,
         Player2 = 2,
         Player3 = 3,
         Player4 = 4
-    }
-
-    public enum WeaponType
-    {
-        FISTS,
-        SABER,
-        PISTOL
     }
 
 
@@ -39,20 +31,7 @@ public class PlayerController : MonoBehaviour
     public float            m_width                     = .1f;
     public float            m_height                    = .1f;
 
-    // ANIMATION
     [Header("Animation")]
-    public Animator         m_animator;
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isRunningBoolParam        = "IsRunning";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isDashingBoolParam        = "IsDashing";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isJumpingBoolParam        = "IsJetpackUp";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isFallingBoolParam        = "IsFalling";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_onDeath                   = "OnDeath";
-
     [ConditionalHide("m_useAnimation", true)]
     public float            m_minSpeedToStartWalkAnim   = .2f;
     [ConditionalHide("m_useAnimation", true)]
@@ -69,7 +48,10 @@ public class PlayerController : MonoBehaviour
     [Header("Walk")]
     public float            m_maxWalkSpeed              = 7;
     public float            m_walkAcc                   = 1;
-
+    [ConditionalHide("m_useMomentum", true)]
+    public float            m_walkAccDown               = 1;
+    public bool             m_useMomentum               = true;
+    
     [Header("Dash")]
     public AnimationCurve   m_dashSpeed                 = new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 0));
     public float            m_dashMaxSpeed              = 10;
@@ -85,11 +67,30 @@ public class PlayerController : MonoBehaviour
     public float            m_maxSlideSpeed             = 1f;
     private float           m_slideAcc                  = 15f;
 
-    //WEAPONS
-    [Header("Weapons")]
+    [Header("Ledge Grab")]
+    [Range(0,1)]
+    public float            m_playerGrabExtraWidth      = 1;
+    public float            m_ledgeGrabMaxSpeed         = 5;
+    //COMBAT
+    [Header("Combat")]
+    [Header("General")]
     public List<GameObject> WeaponList                  = new List<GameObject>();
-    public WeaponType       EquippedWeapon              = WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
+    public WeaponPickup.WeaponType       EquippedWeapon              = WeaponPickup.WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas WeaponPickup.WeaponType está no weaponpickup)
     public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
+    public float            AttackCooldown              = 1f;
+    public Vector2          ThrowOffset;
+
+    [Header("Weapons - Punch")]
+    public Vector2          PunchOffset;
+    public Vector2          PunchHitboxSize;
+
+    [Header("Weapons - Saber")]
+    public Vector2          SaberOffset;
+    public Vector2          SaberHitboxSize;
+      
+    [Header("Weapons - Pistol (in progress)")]
+    public GameObject       ProjectilePrefab;
+    public Vector2 PistolOffset;
 
     // SFX
     //[Header("SFX")]
@@ -99,7 +100,19 @@ public class PlayerController : MonoBehaviour
     //public AudioSource      m_damageSFX;
 
 
+    // --------------------------------- DEBUG IN EDITOR --------------------------------- //
+    [Header("Debug")]
+    public bool             m_useDebugMode              = false;
+
     // -------------------------------- PRIVATE ATTRIBUTES ------------------------------- //
+    // ANIMATOR
+    private PlayerAnimatorController
+                            m_animator;
+    private PlayerAnimatorController.eStates
+                            m_state;
+    private PlayerAnimatorController.eDirections
+                            m_direction;
+
     // LOCOMOTION: WALK
     private float           m_walkSpeed                 = 0;
 
@@ -116,14 +129,12 @@ public class PlayerController : MonoBehaviour
 
     // COMBAT
 
-    private bool            isAttacking;
-    private GameObject      PunchCollider;
-    private GameObject      SaberCollider;
-
+    private bool            isAttacking                 = false;
+    
+    [SerializeField]
+    private LayerMask       playerLayer;
 
     // GENERAL
-    private eStates         m_state;
-
     private int             m_nbLives                   = 3;
 
     private float           m_collisionEpsilon;
@@ -133,6 +144,12 @@ public class PlayerController : MonoBehaviour
     // DEFINES
     private const float     MIN_SPEED_TO_MOVE           = 0.1f;
     private const float     GROUND_Y_VALUE_TO_DELETE    = -2.5f;
+
+#if UNITY_EDITOR
+    private Material        m_debugBallMat;
+    private static Color    m_debugColorFalse = Color.red;
+    private static Color    m_debugColorTrue = Color.green;
+#endif
 
     private bool            grabButtonPressed           = false; //meio gambiarra mas n pensei numa maneira melhor de fazer
 
@@ -146,6 +163,10 @@ public class PlayerController : MonoBehaviour
     // ======================================================================================
     public void Start()
     {
+        m_direction = PlayerAnimatorController.eDirections.Right;
+        m_state     = PlayerAnimatorController.eStates.Idle;
+        m_animator = this.GetComponent<PlayerAnimatorController>();
+
 #if UNITY_EDITOR
         if (!Application.isPlaying)
             return;
@@ -167,11 +188,6 @@ public class PlayerController : MonoBehaviour
         m_dashCooldownTimer = m_dashCoolDownDuration;
 
         m_collisionEpsilon = PhysicsMgr.CollisionDetectionPrecision;
-
-        PunchCollider = transform.Find("PunchCollider").gameObject;
-        PunchCollider.SetActive(false);
-        SaberCollider = transform.Find("SaberCollider").gameObject;
-        SaberCollider.SetActive(false);
     }
 
     // ======================================================================================
@@ -208,30 +224,36 @@ public class PlayerController : MonoBehaviour
 
         // get throw item input
         if(InputMgr.GetButton((int) m_player, InputMgr.eButton.TOSS)){
-            if(EquippedWeapon != WeaponType.FISTS){
+            if(EquippedWeapon != WeaponPickup.WeaponType.FISTS){
                 ThrowWeapon();
             }
         }
 
         // get attack input
         if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
+            isAttacking = true;
             switch(EquippedWeapon){
-                case WeaponType.FISTS:
-                    StartCoroutine(PunchAttack());
+                case WeaponPickup.WeaponType.FISTS:
+                    PunchAttack();
                 break;
-                case WeaponType.SABER:
-                    StartCoroutine(SaberAttack());
+                case WeaponPickup.WeaponType.SABER:
+                    SaberAttack();
                 break;
-                case WeaponType.PISTOL:
+                case WeaponPickup.WeaponType.PISTOL:
                     PistolAttack();
                 break;
             }
         }
 
+
+
         // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
         // TODO: Test with anims and update if necessary
-        if (m_animator != null)
-            UpdateAnimator();
+        if (m_useAnimation)
+        {
+            m_animator.SetState(m_state);
+            m_animator.SetDirection(m_direction);
+        }
     }
 
     // ======================================================================================
@@ -248,13 +270,17 @@ public class PlayerController : MonoBehaviour
         if (m_nbLives <= 0)
         {
             //m_deathSFX.Play();
-            m_animator.SetTrigger(m_onDeath);
             gameReferee.addScore(100, (int)player);
+            m_animator.SetState(PlayerAnimatorController.eStates.Dead);
         }
         else
         {
            // m_damageSFX.Play();
         }
+    }
+
+    public void GetStunned(){
+        print("GET STUNNED " + m_player);
     }
 
     // ======================================================================================
@@ -276,32 +302,13 @@ public class PlayerController : MonoBehaviour
         UpdateGravity(isWallSnapped);
 
         UpdateCollisions(initialPos, this.transform.position);
+        bool isGrabbed      = CheckLedge(initialPos, this.transform.position);
 
         Vector3 finalPos    = this.transform.position;
         Vector3 deltaPos    = finalPos - initialPos;
 
         // update animation state
-        eStates nextState;
-        if (isDashing)
-        {
-            nextState = eStates.Dashing;
-        }
-        else if (deltaPos.y > 0)
-        {
-            nextState = eStates.Jumping;
-        }
-        else if (deltaPos.y < 0)
-        {
-            nextState = eStates.Falling;
-        }
-        else if (isWalking)
-        {
-            nextState = eStates.Walking;
-        }
-        else
-        {
-            nextState = eStates.Idle;
-        }
+        PlayerAnimatorController.eStates nextState = GetNextState(isDashing, isWallSnapped, isWalking, isGrabbed, deltaPos);
 
         // sfx
         //if (nextState == eStates.Dashing && m_state != nextState)
@@ -323,7 +330,9 @@ public class PlayerController : MonoBehaviour
         //    m_jetpackSFX.loop = false;
         //}
 
-        m_state = nextState;
+        m_state     = nextState;
+        m_direction = deltaPos.x > 0 ? PlayerAnimatorController.eDirections.Right : m_direction;
+        m_direction = deltaPos.x < 0 ? PlayerAnimatorController.eDirections.Left  : m_direction;
     }
 
     // ======================================================================================
@@ -332,11 +341,31 @@ public class PlayerController : MonoBehaviour
         bool animate = false;
 
         // walk
-        float nextSpeed         = Mathf.Lerp(m_walkSpeed, m_maxWalkSpeed * _inputHorizontal, GameMgr.DeltaTime * m_walkAcc);
+        float nextSpeed;
+
+        if (!m_useMomentum)
+        {
+            nextSpeed = Mathf.Lerp(m_walkSpeed, m_maxWalkSpeed * _inputHorizontal, GameMgr.DeltaTime * m_walkAcc);
+        }
+        else
+        {
+            nextSpeed = m_walkSpeed;
+            if (_inputHorizontal != 0)
+                nextSpeed += _inputHorizontal * m_walkAcc * GameMgr.DeltaTime;
+            else
+                nextSpeed = Mathf.Lerp(nextSpeed, 0, m_walkAccDown * GameMgr.DeltaTime);
+
+            nextSpeed = nextSpeed >= 0 ? Mathf.Clamp(nextSpeed, 0, m_maxWalkSpeed) : Mathf.Clamp(nextSpeed, -m_maxWalkSpeed, 0);
+        }
+
+        if (m_state == PlayerAnimatorController.eStates.LedgeMoving)
+            nextSpeed = nextSpeed >= 0 ? Mathf.Clamp(nextSpeed, 0, m_ledgeGrabMaxSpeed) : Mathf.Clamp(nextSpeed, -m_ledgeGrabMaxSpeed, 0);
+
         this.transform.position += Vector3.right * GameMgr.DeltaTime * nextSpeed;
 
-        // Walking Anim State
 
+
+        // Walking Anim State
         float nextSpeedMag      = Mathf.Abs(nextSpeed);
         float prevSpeedMag      = Mathf.Abs(m_walkSpeed);
 
@@ -357,8 +386,8 @@ public class PlayerController : MonoBehaviour
     {
         m_jumpCooldownTimer -= GameMgr.DeltaTime;
 
-        // Init Dash
-        if (_doJump && m_jumpCooldownTimer < 0 && ( m_state == eStates.Idle || m_state == eStates.Walking || m_state == eStates.Sliding) )
+        // Init Jump
+        if (_doJump && m_jumpCooldownTimer < 0 && (m_state != PlayerAnimatorController.eStates.Falling && m_state != PlayerAnimatorController.eStates.Dashing && m_state != PlayerAnimatorController.eStates.Jumping))  //( m_state == PlayerAnimatorController.eStates.Idle || m_state == PlayerAnimatorController.eStates.Walking || m_state == PlayerAnimatorController.eStates.Sliding) )
         {
             m_jumpCooldownTimer = m_dashCoolDownDuration;
             m_gravSpeed         = - m_jumpInitSpeed * (_wallSnap ? 1 + m_wallBoostRatio : 1.0f);
@@ -436,51 +465,6 @@ public class PlayerController : MonoBehaviour
     }
 
     // ======================================================================================
-    private void UpdateAnimator()
-    {
-        // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
-        // TODO: Test with anims and update if necessary
-
-        switch (m_state)
-        {
-            case eStates.Idle:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-
-            case eStates.Walking:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, true);
-                break;
-
-            case eStates.Jumping:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, true);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-
-            case eStates.Falling:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, true);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-
-            case eStates.Dashing:
-                m_animator.SetBool(m_isDashingBoolParam, true);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-        }
-    }
-
-    // ======================================================================================
     private Vector3 CheckCollision(Vector3 _startPos, Vector3 _endPos)
     {
         RaycastHit hitInfo;
@@ -546,6 +530,113 @@ public class PlayerController : MonoBehaviour
     }
     */
 
+    // ======================================================================================
+    // checks tree points above the player to check if can grab
+    private bool CheckLedge(Vector3 _startPos, Vector3 _endPos)
+    {
+        Vector3 direction   = _endPos - _startPos;
+        Vector3 finalEndPos = _endPos;
+
+        if (direction.y >= 0)
+            return false;
+
+        RaycastHit hitInfo;
+        // check ledge
+        Vector3 center      = _startPos + Vector3.up * m_height;
+        Vector3 centerLeft  = _startPos + Vector3.up * m_height - Vector3.right * (m_width / 2) * (1 + m_playerGrabExtraWidth);
+        Vector3 centerRight = _startPos + Vector3.up * m_height + Vector3.right * (m_width / 2) * (1 + m_playerGrabExtraWidth);
+        float testEpsilon   = m_collisionEpsilon + m_width / 2.0f;
+
+        if (m_useDebugMode)
+        {
+            Debug.DrawRay(center, direction, Physics.Raycast(center, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
+            Debug.DrawRay(centerRight, direction, Physics.Raycast(centerRight, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
+            Debug.DrawRay(centerLeft, direction, Physics.Raycast(centerLeft, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
+        }
+
+        if ((Physics.Raycast(center, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null) ||
+            (Physics.Raycast(centerLeft, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null) ||
+            (Physics.Raycast(centerRight, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null))
+        {
+#if UNITY_EDITOR
+            if (m_useDebugMode)
+                m_debugBallMat.color = m_debugColorTrue;
+#endif
+
+            Ground gnd = hitInfo.collider.gameObject.GetComponent<Ground>();
+
+            if (gnd != null)
+            {
+                finalEndPos.y   = gnd.SurfaceY() + m_collisionEpsilon - m_height;
+                m_gravSpeed = 0;
+                this.transform.position = finalEndPos;
+                return true;
+            }
+        }
+#if UNITY_EDITOR
+        else if (m_useDebugMode)
+            m_debugBallMat.color = m_debugColorFalse;
+#endif
+
+        return false;
+    }
+
+    // ======================================================================================
+    private PlayerAnimatorController.eStates GetNextState(bool _isDashing, bool _isWallSnapped, bool _isWalking, bool _isGrabbed, Vector2 _deltaPos)
+    {
+        if (_isGrabbed)
+        {
+            if (!_isWalking)
+                return PlayerAnimatorController.eStates.LedgeGrabbed;
+            else
+                return PlayerAnimatorController.eStates.LedgeMoving;
+        }
+        if (_isDashing)
+        {
+            return PlayerAnimatorController.eStates.Dashing;
+        }
+        else if (_deltaPos.y > 0)
+        {
+            return PlayerAnimatorController.eStates.Jumping;
+        }
+        else if (_deltaPos.y < 0)
+        {
+            if (_isWallSnapped)
+                return PlayerAnimatorController.eStates.Sliding;
+            else
+                return PlayerAnimatorController.eStates.Falling;
+        }
+        else if (_isWalking)
+        {
+            return PlayerAnimatorController.eStates.Walking;
+        }
+        else
+        {
+            return PlayerAnimatorController.eStates.Idle;
+        }
+    }
+
+
+    // ======================================================================================
+    // DEBUG METHODS
+    // ======================================================================================
+    private void StartDebug(bool _useDebug)
+    {
+        GameObject debugBall = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        debugBall.transform.parent = this.transform;
+        debugBall.transform.position = this.transform.position + (m_height + .25f) * Vector3.up;
+        debugBall.transform.localScale *= .2f;
+
+        debugBall.GetComponent<Collider>().enabled = false;
+
+        m_debugBallMat = debugBall.GetComponent<Renderer>().material;
+        m_debugBallMat.shader = Shader.Find("GUI/Text Shader");
+        m_debugBallMat.color = m_debugColorFalse;
+
+        if (!_useDebug)
+            debugBall.SetActive(false);
+    }
+
     private void PickupWeapon(){
         print("watch start");
         var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -563,12 +654,12 @@ public class PlayerController : MonoBehaviour
             }
         }
         
-        if(EquippedWeapon != WeaponType.FISTS){
+        if(EquippedWeapon != WeaponPickup.WeaponType.FISTS){
             WeaponObject.transform.position = this.transform.position + new Vector3(0,0.25f,0);
             ToggleWeaponActive(WeaponObject, true);
-            WeaponObject.GetComponent<WeaponMovement>().ThrowWeaponAtAngle();
+            WeaponObject.GetComponent<Projectile>().MoveProjectileAtAngle();
         }
-        EquippedWeapon = (WeaponType)WeaponList[currWeapon].GetComponent<WeaponPickup>().weaponType +1;
+        EquippedWeapon = WeaponList[currWeapon].GetComponent<WeaponPickup>().weaponType;
         WeaponObject = WeaponList[currWeapon];
         WeaponList.Remove(WeaponObject);
         ToggleWeaponActive(WeaponObject, false);
@@ -580,9 +671,10 @@ public class PlayerController : MonoBehaviour
 
     private void ThrowWeapon(){
         //inicialmente só vou fazer dropar a arma
+        WeaponObject.transform.position = transform.position + (Vector3)ThrowOffset;
         ToggleWeaponActive(WeaponObject, true);
-        WeaponObject.GetComponent<WeaponMovement>().ThrowWeaponAtAngle();
-        EquippedWeapon = WeaponType.FISTS;
+        WeaponObject.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
+        EquippedWeapon = WeaponPickup.WeaponType.FISTS;
         WeaponObject = null;
     }
 
@@ -591,30 +683,43 @@ public class PlayerController : MonoBehaviour
         WeaponObject.GetComponent<BoxCollider>().enabled = status;
     }
 
-    private IEnumerator PunchAttack(){
-        isAttacking = true;
-        PunchCollider.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        PunchCollider.SetActive(false);
-        isAttacking = false;
+    private void PunchAttack(){
+        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(PunchOffset, PunchHitboxSize, 0, playerLayer);
+        print("hit targets length " + hitTargets.Length);
+        for(int i = 0; i < hitTargets.Length; i++){
+            print("acertou " + hitTargets[i].name);
+            hitTargets[i].GetComponent<PlayerController>().TakeDamage();
+        }
     }
 
-    private IEnumerator SaberAttack(){
-        isAttacking = true;
-        SaberCollider.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        SaberCollider.SetActive(false);
-        isAttacking = false;
+    private void SaberAttack(){
+        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(SaberOffset, SaberHitboxSize, 0, playerLayer);
+        print("hit targets length " + hitTargets.Length);
+        for(int i = 0; i < hitTargets.Length; i++){
+            print("acertou " + hitTargets[i].name);
+            hitTargets[i].GetComponent<PlayerController>().TakeDamage();
+        }
     }
 
     private void PistolAttack(){
         // spawnar um projetil e mandar ele pra frente
+        GameObject obj = Instantiate(ProjectilePrefab, transform.position + (Vector3)PistolOffset, Quaternion.identity);
+        obj.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
     }
 
-    void OnTriggerEnter(Collider other){
-        //falta fazer ignorar proprio colisor de ataque
-        if(other.CompareTag("Attack")){
-            TakeDamage(other.GetComponent<PlayerController>().m_player);
+    void OnDrawGizmosSelected(){
+        // draws gizmos for punch and saber hitboxes
+        if(EquippedWeapon == WeaponPickup.WeaponType.FISTS){
+            Gizmos.color = Color.blue;
+            Gizmos.DrawCube(transform.position + (Vector3)PunchOffset, (Vector3)PunchHitboxSize);
+        }
+        if(EquippedWeapon == WeaponPickup.WeaponType.SABER){
+            Gizmos.color = Color.red;
+            Gizmos.DrawCube(transform.position + (Vector3)SaberOffset, (Vector3)SaberHitboxSize);
+        }
+        if(EquippedWeapon == WeaponPickup.WeaponType.PISTOL){
+            Gizmos.color = Color.green;
+            Gizmos.DrawCube(transform.position + (Vector3)PistolOffset, new Vector3(0.25f, 0.25f, 0));
         }
     }
 }

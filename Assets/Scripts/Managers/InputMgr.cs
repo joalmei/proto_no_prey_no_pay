@@ -38,8 +38,8 @@ public class InputMgr : MonoBehaviour
         TRIGG_RIGHT,
         STICK_RIGHT,
     }
-
-    // --------------------------------------- STRUCT ------------------------------------ //
+    
+    // ---------------------------------- PUBLIC ATTRIBUTES ------------------------------ //
     //[System.Serializable]
     //public struct sPlayerInput
     //{
@@ -54,7 +54,7 @@ public class InputMgr : MonoBehaviour
     //    public string m_attackButton;
     //    public string m_grabButton;
     //}
-    
+
     public eXBoxButton m_dashButton;
 
     public eXBoxButton m_jumpButton;
@@ -64,11 +64,20 @@ public class InputMgr : MonoBehaviour
     public eXBoxButton m_grabButton;
 
     public float m_triggMinRatio = .3f;
-    
+
+    [Header("Debug")]
+    public bool m_debugMode = false;
+
+    public string m_attk = "A";
+    public string m_dash = "Z";
+    public string m_grab = "X";
+    public string m_toss = "C";
+    public string m_jump = "Space";
+
 
     // --------------------------------- PUBLIC ATTRIBUTES ------------------------------- //
     //public sPlayerInput[]   m_playerInputs;
-    
+
 
     // --------------------------------- PRIVATE ATTRIBUTES ------------------------------ //
     private static InputMgr m_manager;
@@ -87,6 +96,13 @@ public class InputMgr : MonoBehaviour
     {
         if (_player > 4 || _player <= 0)
             return false;
+
+#if UNITY_EDITOR
+        if (_player == 1 && m_manager.m_debugMode)
+        {
+            return GetDebugButton(_button);
+        }
+#endif
 
         GamePadState gamePadState = GamePad.GetState( (PlayerIndex) (_player - 1) );
 
@@ -112,6 +128,14 @@ public class InputMgr : MonoBehaviour
     {
         if (_player > 4 || _player <= 0)
             return 0f;
+
+
+#if UNITY_EDITOR
+        if (_player == 1 && m_manager.m_debugMode)
+        {
+            return GetDebugAxis(_axis);
+        }
+#endif
 
         GamePadState gamePadState = GamePad.GetState( (PlayerIndex) (_player - 1) );
 
@@ -219,4 +243,37 @@ public class InputMgr : MonoBehaviour
 
     //    return 0f;
     //}
+
+    public static bool GetDebugButton(eButton _button)
+    {
+        switch (_button)
+        {
+            case eButton.ATTACK:
+                return Input.GetKey(KeyCode.A);
+            case eButton.DASH:
+                return Input.GetKey(KeyCode.Z);
+            case eButton.GRAB:
+                return Input.GetKey(KeyCode.X);
+            case eButton.TOSS:
+                return Input.GetKey(KeyCode.C);
+            case eButton.JUMP:
+                return Input.GetKey(KeyCode.Space);
+        }
+
+        return false;
+    }
+
+
+    public static float GetDebugAxis(eAxis _axis)
+    {
+        switch (_axis)
+        {
+            case eAxis.VERTICAL:
+                return (Input.GetKey(KeyCode.UpArrow) ? 1.0f : 0) - (Input.GetKey(KeyCode.DownArrow) ? 1.0f : 0);
+            case eAxis.HORIZONTAL:
+                return (Input.GetKey(KeyCode.RightArrow) ? 1.0f : 0) - (Input.GetKey(KeyCode.LeftArrow) ? 1.0f : 0);
+        }
+
+        return 0f;
+    }
 }
