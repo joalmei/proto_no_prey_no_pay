@@ -34,9 +34,6 @@ public class PlayerController : MonoBehaviour
     // BASIC
     [Header("Player")]
     public ePlayer          m_player                    = ePlayer.Player1;
-    
-    [HideInInspector]
-    public int              facing                      = 1;
 
     [Header("Dimensions")]
     public float            m_width                     = .1f;
@@ -95,6 +92,7 @@ public class PlayerController : MonoBehaviour
     public WeaponType       EquippedWeapon              = WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
     public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
     public float            AttackCooldown              = 1f;
+    public Vector2          ThrowOffset;
 
     [Header("Weapons - Punch")]
     public Vector2          PunchOffset;
@@ -257,6 +255,10 @@ public class PlayerController : MonoBehaviour
         {
            // m_damageSFX.Play();
         }
+    }
+
+    public void GetStunned(){
+        print("GET STUNNED " + m_player);
     }
 
     // ======================================================================================
@@ -568,7 +570,7 @@ public class PlayerController : MonoBehaviour
         if(EquippedWeapon != WeaponType.FISTS){
             WeaponObject.transform.position = this.transform.position + new Vector3(0,0.25f,0);
             ToggleWeaponActive(WeaponObject, true);
-            WeaponObject.GetComponent<Projectile>().ThrowWeaponAtAngle();
+            WeaponObject.GetComponent<Projectile>().MoveProjectileAtAngle();
         }
         EquippedWeapon = (WeaponType)WeaponList[currWeapon].GetComponent<WeaponPickup>().weaponType +1;
         WeaponObject = WeaponList[currWeapon];
@@ -582,8 +584,9 @@ public class PlayerController : MonoBehaviour
 
     private void ThrowWeapon(){
         //inicialmente só vou fazer dropar a arma
+        WeaponObject.transform.position = transform.position + (Vector3)ThrowOffset;
         ToggleWeaponActive(WeaponObject, true);
-        WeaponObject.GetComponent<Projectile>().ThrowWeaponAtAngle();
+        WeaponObject.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
         EquippedWeapon = WeaponType.FISTS;
         WeaponObject = null;
     }
@@ -594,8 +597,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void PunchAttack(){
-        print("ataque soco");
-        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(PunchOffset, PunchHitboxSize, 30, playerLayer);
+        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(PunchOffset, PunchHitboxSize, 0, playerLayer);
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
             print("acertou " + hitTargets[i].name);
@@ -604,7 +606,6 @@ public class PlayerController : MonoBehaviour
     }
 
     private void SaberAttack(){
-        print("ataque sabres");
         Collider2D[] hitTargets = Physics2D.OverlapBoxAll(SaberOffset, SaberHitboxSize, 0, playerLayer);
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
@@ -616,7 +617,7 @@ public class PlayerController : MonoBehaviour
     private void PistolAttack(){
         // spawnar um projetil e mandar ele pra frente
         GameObject obj = Instantiate(ProjectilePrefab, transform.position + (Vector3)PistolOffset, Quaternion.identity);
-        obj.GetComponent<Projectile>().SetDirection(new Vector3(facing*5, 0, 0));
+        obj.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
     }
 
     void OnDrawGizmosSelected(){
