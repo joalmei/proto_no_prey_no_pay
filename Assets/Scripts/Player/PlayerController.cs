@@ -128,6 +128,8 @@ public class PlayerController : MonoBehaviour
 
     private float           m_collisionEpsilon;
 
+    private GameRef         gameReferee; //Necessário para se comunicar com o árbitro
+
     // DEFINES
     private const float     MIN_SPEED_TO_MOVE           = 0.1f;
     private const float     GROUND_Y_VALUE_TO_DELETE    = -2.5f;
@@ -149,7 +151,17 @@ public class PlayerController : MonoBehaviour
             return;
 #endif
 
-        m_dashTimer         = m_dashDuration;
+        GameObject gameRefereeObject = GameObject.FindWithTag("GameReferee");
+        if (gameRefereeObject != null)
+        {
+            gameReferee = gameRefereeObject.GetComponent<GameRef>();
+        }
+        if (gameReferee == null)
+        {
+            Debug.Log("This is a lawless battle (Cannot find 'GameRef' script)");
+        }
+
+        m_dashTimer = m_dashDuration;
         m_dashDirection     = Vector2.right;
         
         m_dashCooldownTimer = m_dashCoolDownDuration;
@@ -223,7 +235,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // ======================================================================================
-    public void TakeDamage()
+    public void TakeDamage(ePlayer player)
     {
         print(m_player + " is taking damage");
         if (GameMgr.IsPaused || GameMgr.IsGameOver)
@@ -237,6 +249,7 @@ public class PlayerController : MonoBehaviour
         {
             //m_deathSFX.Play();
             m_animator.SetTrigger(m_onDeath);
+            gameReferee.addScore(100, (int)player);
         }
         else
         {
@@ -601,7 +614,7 @@ public class PlayerController : MonoBehaviour
     void OnTriggerEnter(Collider other){
         //falta fazer ignorar proprio colisor de ataque
         if(other.CompareTag("Attack")){
-            TakeDamage();
+            TakeDamage(other.GetComponent<PlayerController>().m_player);
         }
     }
 }
