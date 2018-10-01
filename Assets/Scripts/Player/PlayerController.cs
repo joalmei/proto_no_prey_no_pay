@@ -671,27 +671,30 @@ public class PlayerController : MonoBehaviour
     }
 
     private void PunchAttack(){
-        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(PunchOffset, PunchHitboxSize, 0, playerLayer);
+        Collider[] hitTargets = Physics.OverlapBox(PunchOffset, PunchHitboxSize/2, Quaternion.identity, playerLayer);
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
             print("acertou " + hitTargets[i].name);
             hitTargets[i].GetComponent<PlayerController>().TakeDamage();
         }
+        isAttacking = false;
     }
 
     private void SaberAttack(){
-        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(SaberOffset, SaberHitboxSize, 0, playerLayer);
+        Collider[] hitTargets = Physics.OverlapBox(SaberOffset, SaberHitboxSize/2, Quaternion.identity, playerLayer);
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
             print("acertou " + hitTargets[i].name);
             hitTargets[i].GetComponent<PlayerController>().TakeDamage();
         }
+        isAttacking = false;
     }
 
     private void PistolAttack(){
         // spawnar um projetil e mandar ele pra frente
         GameObject obj = Instantiate(ProjectilePrefab, transform.position + (Vector3)PistolOffset, Quaternion.identity);
         obj.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
+        isAttacking = false;
     }
 
     void OnDrawGizmosSelected(){

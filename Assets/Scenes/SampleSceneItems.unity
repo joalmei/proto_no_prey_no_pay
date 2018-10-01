@@ -778,7 +778,7 @@ MonoBehaviour:
   m_playerGrabExtraWidth: 1
   m_ledgeGrabMaxSpeed: 5
   WeaponList: []
-  EquippedWeapon: 2
+  EquippedWeapon: 0
   WeaponObject: {fileID: 0}
   AttackCooldown: 1
   ThrowOffset: {x: 0.25, y: 0.25}
