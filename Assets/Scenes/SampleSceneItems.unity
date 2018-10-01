@@ -511,6 +511,12 @@ MonoBehaviour:
   m_attackButton: 2
   m_grabButton: 3
   m_triggMinRatio: 0.3
+  m_debugMode: 0
+  m_attk: A
+  m_dash: Z
+  m_grab: X
+  m_toss: C
+  m_jump: Space
 --- !u!1 &685887609
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,17 +728,13 @@ MonoBehaviour:
   m_player: 1
   m_width: 0.5
   m_height: 0.5
-  m_animator: {fileID: 0}
-  m_isRunningBoolParam: IsRunning
-  m_isDashingBoolParam: IsDashing
-  m_isJumpingBoolParam: IsJetpackUp
-  m_isFallingBoolParam: IsFalling
-  m_onDeath: OnDeath
   m_minSpeedToStartWalkAnim: 0.2
   m_minSpeedToStopWalkAnim: 0.2
   m_gravityRatio: 0.1
   m_maxWalkSpeed: 16
   m_walkAcc: 15
+  m_walkAccDown: 1
+  m_useMomentum: 0
   m_dashSpeed:
     serializedVersion: 2
     m_Curve:
@@ -773,10 +775,13 @@ MonoBehaviour:
   m_jumpCooldownDuration: 1
   m_wallBoostRatio: 0.1
   m_maxSlideSpeed: 1
+  m_playerGrabExtraWidth: 1
+  m_ledgeGrabMaxSpeed: 5
   WeaponList: []
-  EquippedWeapon: 0
+  EquippedWeapon: 2
   WeaponObject: {fileID: 0}
   AttackCooldown: 1
+  ThrowOffset: {x: 0.25, y: 0.25}
   PunchOffset: {x: 0.5, y: 0.25}
   PunchHitboxSize: {x: 0.3, y: 0.5}
   SaberOffset: {x: 0.7, y: 0.25}
@@ -784,6 +789,7 @@ MonoBehaviour:
   ProjectilePrefab: {fileID: 1928193362142504, guid: e525d00235cc6c1459bd6656a01493f9,
     type: 2}
   PistolOffset: {x: 0.5, y: 0.25}
+  m_useDebugMode: 0
   playerLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -970,48 +976,16 @@ MonoBehaviour:
   m_limitDown: {fileID: 128213337}
   m_limitLeft: {fileID: 1349299499}
   m_limitRight: {fileID: 1784085164}
---- !u!1 &1263446876 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1107077664796506, guid: c735353b4f95ace4f92bc2f5f15c20fc,
-    type: 2}
-  m_PrefabInternal: {fileID: 231420445}
 --- !u!4 &1263446877 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4877445807339388, guid: c735353b4f95ace4f92bc2f5f15c20fc,
     type: 2}
   m_PrefabInternal: {fileID: 231420445}
---- !u!114 &1263446878
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1263446876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 452a5564af8a1f441b483a7b472321d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &1322628239 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1546204068857358, guid: 63221e3fd168f0347aaf220c654e5a3f,
-    type: 2}
-  m_PrefabInternal: {fileID: 499226408}
 --- !u!4 &1322628240 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4863779743720182, guid: 63221e3fd168f0347aaf220c654e5a3f,
     type: 2}
   m_PrefabInternal: {fileID: 499226408}
---- !u!114 &1322628241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1322628239}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 452a5564af8a1f441b483a7b472321d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1343059116
 GameObject:
   m_ObjectHideFlags: 0
@@ -1216,17 +1190,13 @@ MonoBehaviour:
   m_player: 2
   m_width: 0.5
   m_height: 0.5
-  m_animator: {fileID: 0}
-  m_isRunningBoolParam: IsRunning
-  m_isDashingBoolParam: IsDashing
-  m_isJumpingBoolParam: IsJetpackUp
-  m_isFallingBoolParam: IsFalling
-  m_onDeath: OnDeath
   m_minSpeedToStartWalkAnim: 0.2
   m_minSpeedToStopWalkAnim: 0.2
   m_gravityRatio: 0.1
   m_maxWalkSpeed: 16
   m_walkAcc: 15
+  m_walkAccDown: 1
+  m_useMomentum: 1
   m_dashSpeed:
     serializedVersion: 2
     m_Curve:
@@ -1267,16 +1237,20 @@ MonoBehaviour:
   m_jumpCooldownDuration: 1
   m_wallBoostRatio: 0.1
   m_maxSlideSpeed: 1
+  m_playerGrabExtraWidth: 1
+  m_ledgeGrabMaxSpeed: 5
   WeaponList: []
   EquippedWeapon: 0
   WeaponObject: {fileID: 0}
   AttackCooldown: 1
+  ThrowOffset: {x: 0, y: 0}
   PunchOffset: {x: 0.5, y: 0.25}
   PunchHitboxSize: {x: 0.3, y: 0.5}
   SaberOffset: {x: 0.7, y: 0.25}
   SaberHitboxSize: {x: 0.75, y: 0.3}
   ProjectilePrefab: {fileID: 0}
   PistolOffset: {x: 0, y: 0}
+  m_useDebugMode: 0
   playerLayer:
     serializedVersion: 2
     m_Bits: 256

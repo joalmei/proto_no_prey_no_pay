@@ -48,7 +48,10 @@ public class PlayerController : MonoBehaviour
     [Header("Walk")]
     public float            m_maxWalkSpeed              = 7;
     public float            m_walkAcc                   = 1;
-
+    [ConditionalHide("m_useMomentum", true)]
+    public float            m_walkAccDown               = 1;
+    public bool             m_useMomentum               = true;
+    
     [Header("Dash")]
     public AnimationCurve   m_dashSpeed                 = new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 0));
     public float            m_dashMaxSpeed              = 10;
@@ -139,6 +142,12 @@ public class PlayerController : MonoBehaviour
     // DEFINES
     private const float     MIN_SPEED_TO_MOVE           = 0.1f;
     private const float     GROUND_Y_VALUE_TO_DELETE    = -2.5f;
+
+#if UNITY_EDITOR
+    private Material        m_debugBallMat;
+    private static Color    m_debugColorFalse = Color.red;
+    private static Color    m_debugColorTrue = Color.green;
+#endif
 
     private bool            grabButtonPressed           = false; //meio gambiarra mas n pensei numa maneira melhor de fazer
 

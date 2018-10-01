@@ -6,10 +6,14 @@ public class Projectile : MonoBehaviour {
 
 	private Vector3 DirectionVector = Vector3.zero;
 	private bool isMoving = true;
+	[SerializeField] private float gravityScale = 1;
+	private float speed = 1;
 
 	// Update is called once per frame
 	void Update () {
 		if(!isMoving){
+			transform.Translate(speed * Vector3.down * Time.deltaTime);
+			speed += gravityScale * Time.deltaTime; 
 			return;
 		}
 		transform.Translate(DirectionVector * Time.deltaTime);
@@ -49,6 +53,8 @@ public class Projectile : MonoBehaviour {
 			}
 			else{
 				other.GetComponent<PlayerController>().GetStunned();
+				SetDirection(Vector3.zero);
+				isMoving = false;
 			}
 		}
 	}
