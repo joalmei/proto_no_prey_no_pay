@@ -2,20 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO : Modularize Animation and SFX
+// All Animation bhv is in PlayerAnimatorController and
+// All SFX bhv is in PlayerSFXController
+
+// TODO : Input as MSGs
+
+[RequireComponent(typeof(PlayerAnimatorController))]
 [ExecuteInEditMode]
 public class PlayerController : MonoBehaviour
 {
-    public enum eStates
-    {
-        Idle,
-        Walking,
-        Jumping,        // Normal || Wall
-        Falling,
-        Dashing,
-        Sliding,        // Wall
-        Grabbed
-    }
-
+    // --------------------------------- PUBLIC AUX ENUMS -------------------------------- //
     public enum ePlayer
     {
         Player1 = 1,
@@ -34,20 +31,7 @@ public class PlayerController : MonoBehaviour
     public float            m_width                     = .1f;
     public float            m_height                    = .1f;
 
-    // ANIMATION
     [Header("Animation")]
-    public Animator         m_animator;
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isRunningBoolParam        = "IsRunning";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isDashingBoolParam        = "IsDashing";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isJumpingBoolParam        = "IsJetpackUp";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_isFallingBoolParam        = "IsFalling";
-    [ConditionalHide("m_useAnimation", true)]
-    public string           m_onDeath                   = "OnDeath";
-
     [ConditionalHide("m_useAnimation", true)]
     public float            m_minSpeedToStartWalkAnim   = .2f;
     [ConditionalHide("m_useAnimation", true)]
@@ -106,6 +90,14 @@ public class PlayerController : MonoBehaviour
     public bool             m_useDebugMode              = false;
 
     // -------------------------------- PRIVATE ATTRIBUTES ------------------------------- //
+    // ANIMATOR
+    private PlayerAnimatorController
+                            m_animator;
+    private PlayerAnimatorController.eStates
+                            m_state;
+    private PlayerAnimatorController.eDirections
+                            m_direction;
+
     // LOCOMOTION: WALK
     private float           m_walkSpeed                 = 0;
 
@@ -120,10 +112,7 @@ public class PlayerController : MonoBehaviour
 
     // LOCOMOTION: WALL SNAP
 
-
     // GENERAL
-    private eStates         m_state;
-
     private int             m_nbLives                   = 3;
 
     private float           m_collisionEpsilon;
@@ -153,6 +142,10 @@ public class PlayerController : MonoBehaviour
     // ======================================================================================
     public void Start()
     {
+        m_direction = PlayerAnimatorController.eDirections.Right;
+        m_state     = PlayerAnimatorController.eStates.Idle;
+        m_animator = this.GetComponent<PlayerAnimatorController>();
+
 #if UNITY_EDITOR
         if (!Application.isPlaying)
             return;
@@ -207,8 +200,11 @@ public class PlayerController : MonoBehaviour
 
         // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
         // TODO: Test with anims and update if necessary
-        if (m_animator != null)
-            UpdateAnimator();
+        if (m_useAnimation)
+        {
+            m_animator.SetState(m_state);
+            m_animator.SetDirection(m_direction);
+        }
     }
 
     // ======================================================================================
@@ -224,7 +220,7 @@ public class PlayerController : MonoBehaviour
         if (m_nbLives <= 0)
         {
             //m_deathSFX.Play();
-            m_animator.SetTrigger(m_onDeath);
+            m_animator.SetState(PlayerAnimatorController.eStates.Dead);
         }
         else
         {
@@ -264,30 +260,7 @@ public class PlayerController : MonoBehaviour
         Vector3 deltaPos    = finalPos - initialPos;
 
         // update animation state
-        eStates nextState;
-        if (isDashing)
-        {
-            nextState = eStates.Dashing;
-        }
-        else if (deltaPos.y > 0)
-        {
-            nextState = eStates.Jumping;
-        }
-        else if (deltaPos.y < 0)
-        {
-            if (isWallSnapped)
-                nextState = eStates.Sliding;
-            else
-                nextState = eStates.Falling;
-        }
-        else if (isWalking)
-        {
-            nextState = eStates.Walking;
-        }
-        else
-        {
-            nextState = eStates.Idle;
-        }
+        PlayerAnimatorController.eStates nextState = GetNextState(isDashing, isWallSnapped, isWalking, deltaPos);
 
         // sfx
         //if (nextState == eStates.Dashing && m_state != nextState)
@@ -309,7 +282,9 @@ public class PlayerController : MonoBehaviour
         //    m_jetpackSFX.loop = false;
         //}
 
-        m_state = nextState;
+        m_state     = nextState;
+        m_direction = deltaPos.x > 0 ? PlayerAnimatorController.eDirections.Right : m_direction;
+        m_direction = deltaPos.x < 0 ? PlayerAnimatorController.eDirections.Left  : m_direction;
     }
 
     // ======================================================================================
@@ -360,7 +335,7 @@ public class PlayerController : MonoBehaviour
         m_jumpCooldownTimer -= GameMgr.DeltaTime;
 
         // Init Jump
-        if (_doJump && m_jumpCooldownTimer < 0 && ( m_state == eStates.Idle || m_state == eStates.Walking || m_state == eStates.Sliding) )
+        if (_doJump && m_jumpCooldownTimer < 0 && ( m_state == PlayerAnimatorController.eStates.Idle || m_state == PlayerAnimatorController.eStates.Walking || m_state == PlayerAnimatorController.eStates.Sliding) )
         {
             m_jumpCooldownTimer = m_dashCoolDownDuration;
             m_gravSpeed         = - m_jumpInitSpeed * (_wallSnap ? 1 + m_wallBoostRatio : 1.0f);
@@ -435,53 +410,6 @@ public class PlayerController : MonoBehaviour
         this.transform.position = finalPos;
 
         return true;
-    }
-
-    // ======================================================================================
-    private void UpdateAnimator()
-    {
-        // TODO: Sliding, WallJumping, LedgeGrabbed
-
-        // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
-        // TODO: Test with anims and update if necessary
-
-        switch (m_state)
-        {
-            case eStates.Idle:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-
-            case eStates.Walking:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, true);
-                break;
-
-            case eStates.Jumping:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, true);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-
-            case eStates.Falling:
-                m_animator.SetBool(m_isDashingBoolParam, false);
-                m_animator.SetBool(m_isFallingBoolParam, true);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-
-            case eStates.Dashing:
-                m_animator.SetBool(m_isDashingBoolParam, true);
-                m_animator.SetBool(m_isFallingBoolParam, false);
-                m_animator.SetBool(m_isJumpingBoolParam, false);
-                m_animator.SetBool(m_isRunningBoolParam, false);
-                break;
-        }
     }
 
     // ======================================================================================
@@ -607,7 +535,35 @@ public class PlayerController : MonoBehaviour
         return true;
     }
 
-    
+    // ======================================================================================
+    private PlayerAnimatorController.eStates GetNextState(bool _isDashing, bool _isWallSnapped, bool _isWalking, Vector2 _deltaPos)
+    {
+        if (_isDashing)
+        {
+            return PlayerAnimatorController.eStates.Dashing;
+        }
+        else if (_deltaPos.y > 0)
+        {
+            return PlayerAnimatorController.eStates.Jumping;
+        }
+        else if (_deltaPos.y < 0)
+        {
+            if (_isWallSnapped)
+                return PlayerAnimatorController.eStates.Sliding;
+            else
+                return PlayerAnimatorController.eStates.Falling;
+        }
+        else if (_isWalking)
+        {
+            return PlayerAnimatorController.eStates.Walking;
+        }
+        else
+        {
+            return PlayerAnimatorController.eStates.Idle;
+        }
+    }
+
+
     // ======================================================================================
     // DEBUG METHODS
     // ======================================================================================
