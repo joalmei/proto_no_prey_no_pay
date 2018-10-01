@@ -22,13 +22,6 @@ public class PlayerController : MonoBehaviour
         Player4 = 4
     }
 
-    public enum WeaponType
-    {
-        FISTS,
-        SABER,
-        PISTOL
-    }
-
 
     // -------------------------------- PUBLIC ATTRIBUTES -------------------------------- //
     // BASIC
@@ -89,7 +82,7 @@ public class PlayerController : MonoBehaviour
     [Header("Combat")]
     [Header("General")]
     public List<GameObject> WeaponList                  = new List<GameObject>();
-    public WeaponType       EquippedWeapon              = WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
+    public WeaponPickup.WeaponType       EquippedWeapon              = WeaponPickup.WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas WeaponPickup.WeaponType está no weaponpickup)
     public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
     public float            AttackCooldown              = 1f;
     public Vector2          ThrowOffset;
@@ -206,7 +199,7 @@ public class PlayerController : MonoBehaviour
 
         // get throw item input
         if(InputMgr.GetButton((int) m_player, InputMgr.eButton.TOSS)){
-            if(EquippedWeapon != WeaponType.FISTS){
+            if(EquippedWeapon != WeaponPickup.WeaponType.FISTS){
                 ThrowWeapon();
             }
         }
@@ -215,13 +208,13 @@ public class PlayerController : MonoBehaviour
         if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
             isAttacking = true;
             switch(EquippedWeapon){
-                case WeaponType.FISTS:
+                case WeaponPickup.WeaponType.FISTS:
                     PunchAttack();
                 break;
-                case WeaponType.SABER:
+                case WeaponPickup.WeaponType.SABER:
                     SaberAttack();
                 break;
-                case WeaponType.PISTOL:
+                case WeaponPickup.WeaponType.PISTOL:
                     PistolAttack();
                 break;
             }
@@ -567,12 +560,12 @@ public class PlayerController : MonoBehaviour
             }
         }
         
-        if(EquippedWeapon != WeaponType.FISTS){
+        if(EquippedWeapon != WeaponPickup.WeaponType.FISTS){
             WeaponObject.transform.position = this.transform.position + new Vector3(0,0.25f,0);
             ToggleWeaponActive(WeaponObject, true);
             WeaponObject.GetComponent<Projectile>().MoveProjectileAtAngle();
         }
-        EquippedWeapon = (WeaponType)WeaponList[currWeapon].GetComponent<WeaponPickup>().weaponType +1;
+        EquippedWeapon = WeaponList[currWeapon].GetComponent<WeaponPickup>().weaponType;
         WeaponObject = WeaponList[currWeapon];
         WeaponList.Remove(WeaponObject);
         ToggleWeaponActive(WeaponObject, false);
@@ -587,7 +580,7 @@ public class PlayerController : MonoBehaviour
         WeaponObject.transform.position = transform.position + (Vector3)ThrowOffset;
         ToggleWeaponActive(WeaponObject, true);
         WeaponObject.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
-        EquippedWeapon = WeaponType.FISTS;
+        EquippedWeapon = WeaponPickup.WeaponType.FISTS;
         WeaponObject = null;
     }
 
@@ -622,15 +615,15 @@ public class PlayerController : MonoBehaviour
 
     void OnDrawGizmosSelected(){
         // draws gizmos for punch and saber hitboxes
-        if(EquippedWeapon == WeaponType.FISTS){
+        if(EquippedWeapon == WeaponPickup.WeaponType.FISTS){
             Gizmos.color = Color.blue;
             Gizmos.DrawCube(transform.position + (Vector3)PunchOffset, (Vector3)PunchHitboxSize);
         }
-        if(EquippedWeapon == WeaponType.SABER){
+        if(EquippedWeapon == WeaponPickup.WeaponType.SABER){
             Gizmos.color = Color.red;
             Gizmos.DrawCube(transform.position + (Vector3)SaberOffset, (Vector3)SaberHitboxSize);
         }
-        if(EquippedWeapon == WeaponType.PISTOL){
+        if(EquippedWeapon == WeaponPickup.WeaponType.PISTOL){
             Gizmos.color = Color.green;
             Gizmos.DrawCube(transform.position + (Vector3)PistolOffset, new Vector3(0.25f, 0.25f, 0));
         }

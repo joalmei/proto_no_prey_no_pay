@@ -6,6 +6,7 @@ public class WeaponPickup : MonoBehaviour {
 
 	[HideInInspector]
 	public enum WeaponType{
+		FISTS,
 		SABER,
 		PISTOL
 	};
