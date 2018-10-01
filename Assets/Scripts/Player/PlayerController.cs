@@ -34,6 +34,9 @@ public class PlayerController : MonoBehaviour
     // BASIC
     [Header("Player")]
     public ePlayer          m_player                    = ePlayer.Player1;
+    
+    [HideInInspector]
+    public int              facing                      = 1;
 
     [Header("Dimensions")]
     public float            m_width                     = .1f;
@@ -85,12 +88,23 @@ public class PlayerController : MonoBehaviour
     public float            m_maxSlideSpeed             = 1f;
     private float           m_slideAcc                  = 15f;
 
-    //WEAPONS
-    [Header("Weapons")]
+    //COMBAT
+    [Header("Combat")]
+    [Header("General")]
     public List<GameObject> WeaponList                  = new List<GameObject>();
     public WeaponType       EquippedWeapon              = WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas weapontype está no weaponpickup)
     public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
+    public float            AttackCooldown              = 1f;
 
+    [Header("Weapons - Punch")]
+    public Vector2          PunchOffset;
+    public Vector2          PunchHitboxSize;
+
+    [Header("Weapons - Saber")]
+    public Vector2          SaberOffset;
+    public Vector2          SaberHitboxSize;
+      
+    [Header("Weabpons - Pistol (in progress)")]
     // SFX
     //[Header("SFX")]
     //public AudioSource      m_dashSFX;
@@ -116,10 +130,10 @@ public class PlayerController : MonoBehaviour
 
     // COMBAT
 
-    private bool            isAttacking;
-    private GameObject      PunchCollider;
-    private GameObject      SaberCollider;
-
+    private bool            isAttacking                 = false;
+    
+    [SerializeField]
+    private LayerMask       playerLayer;
 
     // GENERAL
     private eStates         m_state;
@@ -155,11 +169,6 @@ public class PlayerController : MonoBehaviour
         m_dashCooldownTimer = m_dashCoolDownDuration;
 
         m_collisionEpsilon = PhysicsMgr.CollisionDetectionPrecision;
-
-        PunchCollider = transform.Find("PunchCollider").gameObject;
-        PunchCollider.SetActive(false);
-        SaberCollider = transform.Find("SaberCollider").gameObject;
-        SaberCollider.SetActive(false);
     }
 
     // ======================================================================================
@@ -202,19 +211,23 @@ public class PlayerController : MonoBehaviour
         }
 
         // get attack input
-        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
+        // if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
+        if(Input.GetKeyDown(KeyCode.Space)){
+            isAttacking = true;
             switch(EquippedWeapon){
                 case WeaponType.FISTS:
-                    StartCoroutine(PunchAttack());
+                    PunchAttack();
                 break;
                 case WeaponType.SABER:
-                    StartCoroutine(SaberAttack());
+                    SaberAttack();
                 break;
                 case WeaponType.PISTOL:
                     PistolAttack();
                 break;
             }
         }
+
+
 
         // OBS: UptadeAnimator MAYBE is OUT OF DATE!!!!
         // TODO: Test with anims and update if necessary
@@ -578,30 +591,39 @@ public class PlayerController : MonoBehaviour
         WeaponObject.GetComponent<BoxCollider>().enabled = status;
     }
 
-    private IEnumerator PunchAttack(){
-        isAttacking = true;
-        PunchCollider.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        PunchCollider.SetActive(false);
-        isAttacking = false;
+    private void PunchAttack(){
+        print("ataque soco");
+        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(PunchOffset, PunchHitboxSize, 30, playerLayer);
+        print("hit targets length " + hitTargets.Length);
+        for(int i = 0; i < hitTargets.Length; i++){
+            print("acertou " + hitTargets[i].name);
+            hitTargets[i].GetComponent<PlayerController>().TakeDamage();
+        }
     }
 
-    private IEnumerator SaberAttack(){
-        isAttacking = true;
-        SaberCollider.SetActive(true);
-        yield return new WaitForSeconds(1f);
-        SaberCollider.SetActive(false);
-        isAttacking = false;
+    private void SaberAttack(){
+        print("ataque sabres");
+        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(SaberOffset, SaberHitboxSize, 0, playerLayer);
+        print("hit targets length " + hitTargets.Length);
+        for(int i = 0; i < hitTargets.Length; i++){
+            print("acertou " + hitTargets[i].name);
+            hitTargets[i].GetComponent<PlayerController>().TakeDamage();
+        }
     }
 
     private void PistolAttack(){
         // spawnar um projetil e mandar ele pra frente
     }
 
-    void OnTriggerEnter(Collider other){
-        //falta fazer ignorar proprio colisor de ataque
-        if(other.CompareTag("Attack")){
-            TakeDamage();
+    void OnDrawGizmosSelected(){
+        // draws gizmos for punch and saber hitboxes
+        if(EquippedWeapon == WeaponType.FISTS){
+            Gizmos.color = Color.blue;
+            Gizmos.DrawCube(transform.position + (Vector3)PunchOffset, (Vector3)PunchHitboxSize);
+        }
+        if(EquippedWeapon == WeaponType.SABER){
+            Gizmos.color = Color.red;
+            Gizmos.DrawCube(transform.position + (Vector3)SaberOffset, (Vector3)SaberHitboxSize);
         }
     }
 }
