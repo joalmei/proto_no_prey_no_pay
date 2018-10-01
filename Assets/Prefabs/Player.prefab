@@ -2209,6 +2209,8 @@ MonoBehaviour:
   m_isFallingBoolParam: IsFalling
   m_isAttackingBoolParam: IsAttacking
   m_isSlidingBoolParam: IsSliding
+  m_isLedgeGrabbed: IsLedgeGrabbed
+  m_isLedgeMoving: IsLedgeMoving
   m_onDeathTriggerParam: OnDeath
 --- !u!114 &114012600343221916
 MonoBehaviour:

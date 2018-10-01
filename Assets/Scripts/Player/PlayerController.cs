@@ -254,13 +254,13 @@ public class PlayerController : MonoBehaviour
         UpdateGravity(isWallSnapped);
         
         UpdateCollisions(initialPos, this.transform.position);
-        CheckLedge(initialPos, this.transform.position);
+        bool isGrabbed      = CheckLedge(initialPos, this.transform.position);
 
         Vector3 finalPos    = this.transform.position;
         Vector3 deltaPos    = finalPos - initialPos;
 
         // update animation state
-        PlayerAnimatorController.eStates nextState = GetNextState(isDashing, isWallSnapped, isWalking, deltaPos);
+        PlayerAnimatorController.eStates nextState = GetNextState(isDashing, isWallSnapped, isWalking, isGrabbed, deltaPos);
 
         // sfx
         //if (nextState == eStates.Dashing && m_state != nextState)
@@ -487,57 +487,60 @@ public class PlayerController : MonoBehaviour
         Vector3 direction   = _endPos - _startPos;
         Vector3 finalEndPos = _endPos;
 
-        if (direction.y < 0)
-        {
-            RaycastHit hitInfo;
-            // check ledge
-            Vector3 center      = _startPos + Vector3.up * m_height;
-            Vector3 centerLeft  = _startPos + Vector3.up * m_height - Vector3.right * (m_width / 2) * (1 + m_playerGrabExtraWidth);
-            Vector3 centerRight = _startPos + Vector3.up * m_height + Vector3.right * (m_width / 2) * (1 + m_playerGrabExtraWidth);
-            float testEpsilon   = m_collisionEpsilon + m_width / 2.0f;
+        if (direction.y >= 0)
+            return false;
 
+        RaycastHit hitInfo;
+        // check ledge
+        Vector3 center      = _startPos + Vector3.up * m_height;
+        Vector3 centerLeft  = _startPos + Vector3.up * m_height - Vector3.right * (m_width / 2) * (1 + m_playerGrabExtraWidth);
+        Vector3 centerRight = _startPos + Vector3.up * m_height + Vector3.right * (m_width / 2) * (1 + m_playerGrabExtraWidth);
+        float testEpsilon   = m_collisionEpsilon + m_width / 2.0f;
+
+        if (m_useDebugMode)
+        {
+            Debug.DrawRay(center, direction, Physics.Raycast(center, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
+            Debug.DrawRay(centerRight, direction, Physics.Raycast(centerRight, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
+            Debug.DrawRay(centerLeft, direction, Physics.Raycast(centerLeft, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
+        }
+
+        if ((Physics.Raycast(center, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null) ||
+            (Physics.Raycast(centerLeft, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null) ||
+            (Physics.Raycast(centerRight, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null))
+        {
+#if UNITY_EDITOR
             if (m_useDebugMode)
-            {
-                Debug.DrawRay(center, direction, Physics.Raycast(center, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
-                Debug.DrawRay(centerRight, direction, Physics.Raycast(centerRight, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
-                Debug.DrawRay(centerLeft, direction, Physics.Raycast(centerLeft, Vector3.down, direction.magnitude, ~(1 << this.gameObject.layer)) ? Color.white : Color.red);
-            }
-
-            if ((Physics.Raycast(center, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null) ||
-                (Physics.Raycast(centerLeft, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null) ||
-                (Physics.Raycast(centerRight, Vector3.down, out hitInfo, testEpsilon, ~(1 << this.gameObject.layer)) && hitInfo.collider.gameObject.GetComponent<Ground>() != null))
-            {
-#if UNITY_EDITOR
-                if (m_useDebugMode)
-                    m_debugBallMat.color = m_debugColorTrue;
+                m_debugBallMat.color = m_debugColorTrue;
 #endif
 
-                Ground gnd = hitInfo.collider.gameObject.GetComponent<Ground>();
+            Ground gnd = hitInfo.collider.gameObject.GetComponent<Ground>();
 
-                if (gnd != null)
-                {
-                    finalEndPos.y = gnd.SurfaceY() + m_collisionEpsilon - m_height;
-                }
+            if (gnd != null)
+            {
+                finalEndPos.y   = gnd.SurfaceY() + m_collisionEpsilon - m_height;
+                m_gravSpeed = 0;
+                this.transform.position = finalEndPos;
+                return true;
             }
+        }
 #if UNITY_EDITOR
-            else if (m_useDebugMode)
-                m_debugBallMat.color = m_debugColorFalse;
+        else if (m_useDebugMode)
+            m_debugBallMat.color = m_debugColorFalse;
 #endif
-        }
 
-        if (_startPos.y == finalEndPos.y)
-        {
-            m_gravSpeed = 0;
-        }
-
-        this.transform.position = finalEndPos;
-
-        return true;
+        return false;
     }
 
     // ======================================================================================
-    private PlayerAnimatorController.eStates GetNextState(bool _isDashing, bool _isWallSnapped, bool _isWalking, Vector2 _deltaPos)
+    private PlayerAnimatorController.eStates GetNextState(bool _isDashing, bool _isWallSnapped, bool _isWalking, bool _isGrabbed, Vector2 _deltaPos)
     {
+        if (_isGrabbed)
+        {
+            if (!_isWalking)
+                return PlayerAnimatorController.eStates.LedgeGrabbed;
+            else
+                return PlayerAnimatorController.eStates.LedgeMoving;
+        }
         if (_isDashing)
         {
             return PlayerAnimatorController.eStates.Dashing;
