@@ -691,13 +691,16 @@ MonoBehaviour:
   m_wallBoostRatio: 0.1
   m_maxSlideSpeed: 1
   WeaponList: []
-  EquippedWeapon: 0
+  EquippedWeapon: 2
   WeaponObject: {fileID: 0}
   AttackCooldown: 1
   PunchOffset: {x: 0.5, y: 0.25}
   PunchHitboxSize: {x: 0.3, y: 0.5}
   SaberOffset: {x: 0.7, y: 0.25}
   SaberHitboxSize: {x: 0.75, y: 0.3}
+  ProjectilePrefab: {fileID: 1928193362142504, guid: e525d00235cc6c1459bd6656a01493f9,
+    type: 2}
+  PistolOffset: {x: 0.5, y: 0.25}
   playerLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -1376,6 +1379,8 @@ MonoBehaviour:
   PunchHitboxSize: {x: 0.3, y: 0.5}
   SaberOffset: {x: 0.7, y: 0.25}
   SaberHitboxSize: {x: 0.75, y: 0.3}
+  ProjectilePrefab: {fileID: 0}
+  PistolOffset: {x: 0, y: 0}
   playerLayer:
     serializedVersion: 2
     m_Bits: 256

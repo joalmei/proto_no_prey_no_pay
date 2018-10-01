@@ -104,7 +104,10 @@ public class PlayerController : MonoBehaviour
     public Vector2          SaberOffset;
     public Vector2          SaberHitboxSize;
       
-    [Header("Weabpons - Pistol (in progress)")]
+    [Header("Weapons - Pistol (in progress)")]
+    public GameObject       ProjectilePrefab;
+    public Vector2 PistolOffset;
+
     // SFX
     //[Header("SFX")]
     //public AudioSource      m_dashSFX;
@@ -211,8 +214,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // get attack input
-        // if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
-        if(Input.GetKeyDown(KeyCode.Space)){
+        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
             isAttacking = true;
             switch(EquippedWeapon){
                 case WeaponType.FISTS:
@@ -566,7 +568,7 @@ public class PlayerController : MonoBehaviour
         if(EquippedWeapon != WeaponType.FISTS){
             WeaponObject.transform.position = this.transform.position + new Vector3(0,0.25f,0);
             ToggleWeaponActive(WeaponObject, true);
-            WeaponObject.GetComponent<WeaponMovement>().ThrowWeaponAtAngle();
+            WeaponObject.GetComponent<Projectile>().ThrowWeaponAtAngle();
         }
         EquippedWeapon = (WeaponType)WeaponList[currWeapon].GetComponent<WeaponPickup>().weaponType +1;
         WeaponObject = WeaponList[currWeapon];
@@ -581,7 +583,7 @@ public class PlayerController : MonoBehaviour
     private void ThrowWeapon(){
         //inicialmente só vou fazer dropar a arma
         ToggleWeaponActive(WeaponObject, true);
-        WeaponObject.GetComponent<WeaponMovement>().ThrowWeaponAtAngle();
+        WeaponObject.GetComponent<Projectile>().ThrowWeaponAtAngle();
         EquippedWeapon = WeaponType.FISTS;
         WeaponObject = null;
     }
@@ -613,6 +615,8 @@ public class PlayerController : MonoBehaviour
 
     private void PistolAttack(){
         // spawnar um projetil e mandar ele pra frente
+        GameObject obj = Instantiate(ProjectilePrefab, transform.position + (Vector3)PistolOffset, Quaternion.identity);
+        obj.GetComponent<Projectile>().SetDirection(new Vector3(facing*5, 0, 0));
     }
 
     void OnDrawGizmosSelected(){
@@ -624,6 +628,10 @@ public class PlayerController : MonoBehaviour
         if(EquippedWeapon == WeaponType.SABER){
             Gizmos.color = Color.red;
             Gizmos.DrawCube(transform.position + (Vector3)SaberOffset, (Vector3)SaberHitboxSize);
+        }
+        if(EquippedWeapon == WeaponType.PISTOL){
+            Gizmos.color = Color.green;
+            Gizmos.DrawCube(transform.position + (Vector3)PistolOffset, new Vector3(0.25f, 0.25f, 0));
         }
     }
 }

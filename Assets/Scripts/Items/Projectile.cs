@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponMovement : MonoBehaviour {
+public class Projectile : MonoBehaviour {
 
 	private Vector3 DirectionVector;
-	private bool isAirborne;
+	private bool isMoving;
 
 	// Update is called once per frame
 	void Update () {
-		if(!isAirborne){
+		if(!isMoving){
 			return;
 		}
 		transform.Translate(DirectionVector);
@@ -17,11 +17,15 @@ public class WeaponMovement : MonoBehaviour {
 		//checar colisão também
 	}
 
+	public void SetDirection(Vector3 direction){
+		DirectionVector = direction;
+	}
+
 	// ideally direction == 1 is right, and direction == -1 is left
 	// it can also be changed to a bool with 0 and 1
 	public void ThrowWeapon(Vector3 direction){
-		DirectionVector = direction;
-		isAirborne = true;
+		SetDirection(direction);
+		isMoving = true;
 	}
 
 	public void ThrowWeaponAtAngle(){
