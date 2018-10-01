@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour
     [Header("Ledge Grab")]
     [Range(0,1)]
     public float            m_playerGrabExtraWidth      = 1;
+    public float            m_ledgeGrabMaxSpeed         = 5;
 
     //WEAPONS
     [Header("Weapons")]
@@ -87,6 +88,7 @@ public class PlayerController : MonoBehaviour
 
 
     // --------------------------------- DEBUG IN EDITOR --------------------------------- //
+    [Header("Debug")]
     public bool             m_useDebugMode              = false;
 
     // -------------------------------- PRIVATE ATTRIBUTES ------------------------------- //
@@ -310,10 +312,14 @@ public class PlayerController : MonoBehaviour
             nextSpeed = nextSpeed >= 0 ? Mathf.Clamp(nextSpeed, 0, m_maxWalkSpeed) : Mathf.Clamp(nextSpeed, -m_maxWalkSpeed, 0);
         }
 
+        if (m_state == PlayerAnimatorController.eStates.LedgeMoving)
+            nextSpeed = nextSpeed >= 0 ? Mathf.Clamp(nextSpeed, 0, m_ledgeGrabMaxSpeed) : Mathf.Clamp(nextSpeed, -m_ledgeGrabMaxSpeed, 0);
+
         this.transform.position += Vector3.right * GameMgr.DeltaTime * nextSpeed;
 
-        // Walking Anim State
 
+
+        // Walking Anim State
         float nextSpeedMag      = Mathf.Abs(nextSpeed);
         float prevSpeedMag      = Mathf.Abs(m_walkSpeed);
 
@@ -335,7 +341,7 @@ public class PlayerController : MonoBehaviour
         m_jumpCooldownTimer -= GameMgr.DeltaTime;
 
         // Init Jump
-        if (_doJump && m_jumpCooldownTimer < 0 && ( m_state == PlayerAnimatorController.eStates.Idle || m_state == PlayerAnimatorController.eStates.Walking || m_state == PlayerAnimatorController.eStates.Sliding) )
+        if (_doJump && m_jumpCooldownTimer < 0 && (m_state != PlayerAnimatorController.eStates.Falling && m_state != PlayerAnimatorController.eStates.Dashing && m_state != PlayerAnimatorController.eStates.Jumping))  //( m_state == PlayerAnimatorController.eStates.Idle || m_state == PlayerAnimatorController.eStates.Walking || m_state == PlayerAnimatorController.eStates.Sliding) )
         {
             m_jumpCooldownTimer = m_dashCoolDownDuration;
             m_gravSpeed         = - m_jumpInitSpeed * (_wallSnap ? 1 + m_wallBoostRatio : 1.0f);
