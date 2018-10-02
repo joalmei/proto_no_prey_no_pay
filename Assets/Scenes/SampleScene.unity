@@ -632,6 +632,12 @@ MonoBehaviour:
   m_attackButton: 2
   m_grabButton: 3
   m_triggMinRatio: 0.3
+  m_debugMode: 0
+  m_attk: A
+  m_dash: Z
+  m_grab: X
+  m_toss: C
+  m_jump: Space
 --- !u!1 &685887609
 GameObject:
   m_ObjectHideFlags: 0
@@ -844,7 +850,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 14, y: 2, z: 1}
+  m_Size: {x: 25, y: 2, z: 1}
   m_Center: {x: 0, y: -1, z: 0}
 --- !u!114 &988791047
 MonoBehaviour:
@@ -954,7 +960,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1349299498}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.64, y: 0, z: 0}
+  m_LocalPosition: {x: -9, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 257898553}
@@ -1012,8 +1018,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1541014994}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.99000025, z: 0}
-  m_LocalScale: {x: 15, y: 2, z: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalScale: {x: 25, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 988791045}
   m_RootOrder: 0
@@ -1082,7 +1088,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1784085163}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.67, y: 0, z: 0}
+  m_LocalPosition: {x: 9, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 257898553}

@@ -2608,14 +2608,24 @@ MonoBehaviour:
   m_jumpCooldownDuration: 1
   m_wallBoostRatio: 0.1
   m_maxSlideSpeed: 1
-  m_slideAcc: 15
-  m_jumpEjectSpeed: 13
   m_playerGrabExtraWidth: 0.5
   m_ledgeGrabMaxSpeed: 3
   WeaponList: []
-  EquippedWeapon: {fileID: 0}
+  EquippedWeapon: 0
   WeaponObject: {fileID: 0}
+  AttackCooldown: 1
+  ThrowOffset: {x: 0, y: 0}
+  stunDuration: 1
+  PunchOffset: {x: 0, y: 0}
+  PunchHitboxSize: {x: 0, y: 0}
+  SaberOffset: {x: 0, y: 0}
+  SaberHitboxSize: {x: 0, y: 0}
+  ProjectilePrefab: {fileID: 0}
+  PistolOffset: {x: 0, y: 0}
   m_useDebugMode: 0
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
   m_useAnimation: 1
 --- !u!114 &114253004634453830
 MonoBehaviour:
