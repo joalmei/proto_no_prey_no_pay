@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class WeaponPickup : MonoBehaviour {
 
-	private enum WeaponType{
+	[HideInInspector]
+	public enum WeaponType{
+		FISTS,
 		SABER,
 		PISTOL
 	};
 
-	WeaponType weaponType;
+	public WeaponType weaponType;
 
 	//void OnTriggerEnter2D(Collider2D other){
 	void OnTriggerEnter(Collider other){	
