@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Lethal
   - NonLethal
+  - GameReferee
   layers:
   - Default
   - TransparentFX

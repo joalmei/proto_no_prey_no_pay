@@ -135,7 +135,7 @@ public class PlayerController : MonoBehaviour
     private LayerMask       playerLayer;
 
     // GENERAL
-    private int             m_nbLives                   = 3;
+    private int             m_nbLives                   = 1;
 
     private float           m_collisionEpsilon;
 
@@ -258,6 +258,7 @@ public class PlayerController : MonoBehaviour
 
     // ======================================================================================
     public void TakeDamage(ePlayer player)
+    //public void TakeDamage()
     {
         print(m_player + " is taking damage");
         if (GameMgr.IsPaused || GameMgr.IsGameOver)
@@ -688,7 +689,7 @@ public class PlayerController : MonoBehaviour
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
             print("acertou " + hitTargets[i].name);
-            hitTargets[i].GetComponent<PlayerController>().TakeDamage();
+            hitTargets[i].GetComponent<PlayerController>().TakeDamage(this.m_player);
         }
     }
 
@@ -697,7 +698,7 @@ public class PlayerController : MonoBehaviour
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
             print("acertou " + hitTargets[i].name);
-            hitTargets[i].GetComponent<PlayerController>().TakeDamage();
+            hitTargets[i].GetComponent<PlayerController>().TakeDamage(this.m_player);
         }
     }
 
@@ -705,6 +706,7 @@ public class PlayerController : MonoBehaviour
         // spawnar um projetil e mandar ele pra frente
         GameObject obj = Instantiate(ProjectilePrefab, transform.position + (Vector3)PistolOffset, Quaternion.identity);
         obj.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
+        obj.GetComponent<Projectile>().SetOrigin(this.m_player);
     }
 
     void OnDrawGizmosSelected(){

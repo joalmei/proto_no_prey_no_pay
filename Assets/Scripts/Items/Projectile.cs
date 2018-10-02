@@ -8,6 +8,7 @@ public class Projectile : MonoBehaviour {
 	private bool isMoving = true;
 	[SerializeField] private float gravityScale = 1;
 	private float speed = 1;
+    private PlayerController.ePlayer origin;
 
 	// Update is called once per frame
 	void Update () {
@@ -23,6 +24,11 @@ public class Projectile : MonoBehaviour {
 	public void SetDirection(Vector3 direction){
 		DirectionVector = direction;
 	}
+
+    public void SetOrigin(PlayerController.ePlayer player)
+    {
+        origin = player;
+    }
 
 	// ideally direction == 1 is right, and direction == -1 is left
 	// it can also be changed to a bool with 0 and 1
@@ -48,7 +54,7 @@ public class Projectile : MonoBehaviour {
 	void OnTriggerEnter(Collider other){
 		if(isMoving && other.tag == "Player"){
 			if(tag == "Lethal"){
-				other.GetComponent<PlayerController>().TakeDamage();
+				other.GetComponent<PlayerController>().TakeDamage(origin);
 				Destroy(gameObject);
 			}
 			else{
