@@ -5,20 +5,29 @@ using UnityEngine;
 public class Projectile : MonoBehaviour {
 
 	private Vector3 DirectionVector = Vector3.zero;
-	private bool isMoving = true;
-	[SerializeField] private float gravityScale = 1;
-	private float speed = 1;
+	[SerializeField] private bool isFalling = true;
+	[SerializeField] private float m_gravSpeed = 0;
+	private float m_collisionEpsilon;
     private PlayerController.ePlayer origin;
+
+	[Range(0, 1)]
+    public float m_gravityRatio = .4f;
+
+	[Header("Dimensions")]
+    public float            m_width                     = .1f;
+    public float            m_height                    = .1f;
+
+	void Start(){
+        m_collisionEpsilon = PhysicsMgr.CollisionDetectionPrecision;
+	}
 
 	// Update is called once per frame
 	void Update () {
-		if(!isMoving){
-			transform.Translate(speed * Vector3.down * Time.deltaTime);
-			speed += gravityScale * Time.deltaTime; 
+		if(!isFalling){
+			transform.Translate(DirectionVector * Time.deltaTime);
 			return;
 		}
-		transform.Translate(DirectionVector * Time.deltaTime);
-		//checar colisão também
+		UpdateTransform();
 	}
 
 	public void SetDirection(Vector3 direction){
@@ -34,7 +43,7 @@ public class Projectile : MonoBehaviour {
 	// it can also be changed to a bool with 0 and 1
 	public void MoveProjectile(Vector3 direction){
 		SetDirection(direction);
-		isMoving = true;
+		isFalling = false;
 	}
 
 	public void MoveProjectileAtAngle(){
@@ -52,7 +61,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other){
-		if(isMoving && other.tag == "Player"){
+		if(isFalling && other.tag == "Player"){
 			if(tag == "Lethal"){
 				other.GetComponent<PlayerController>().TakeDamage(origin);
 				Destroy(gameObject);
@@ -60,8 +69,83 @@ public class Projectile : MonoBehaviour {
 			else{
 				other.GetComponent<PlayerController>().GetStunned();
 				SetDirection(Vector3.zero);
-				isMoving = false;
+				isFalling = true;
 			}
 		}
 	}
+
+	//ESSA PARTE É COPIADA DO PLAYER COM PEQUENAS ALTERAÇÕES//
+
+	private void UpdateTransform()
+    {
+        // update transform
+        Vector3 initialPos  = this.transform.position;
+
+        bool isWallSnapped  = CheckWalls();
+       
+        UpdateGravity();
+
+        UpdateCollisions(initialPos, this.transform.position);
+
+        Vector3 finalPos    = this.transform.position;
+    }
+	private bool UpdateGravity()
+    {
+        m_gravSpeed += Physics.gravity.magnitude * m_gravityRatio;
+
+        this.transform.position = this.transform.position + GameMgr.DeltaTime * m_gravSpeed * Vector3.down;
+        
+        return true;
+    }
+
+    // ======================================================================================
+    private bool UpdateCollisions(Vector3 _startPos, Vector3 _endPos)
+    {
+        Vector3 finalPos = CheckCollision(_startPos, _endPos);
+
+        if (_startPos.y == finalPos.y)
+        {
+            m_gravSpeed = 0;
+        }
+
+        this.transform.position = finalPos;
+
+        return true;
+    }
+
+    // ======================================================================================
+    private Vector3 CheckCollision(Vector3 _startPos, Vector3 _endPos)
+    {
+        RaycastHit hitInfo;
+        Vector3 direction   = _endPos - _startPos;
+        Vector3 finalEndPos = _endPos;
+
+        if (direction.y < 0)
+        {
+            if (Physics.Raycast(_startPos, direction + m_collisionEpsilon * direction.normalized, out hitInfo, direction.magnitude + m_collisionEpsilon, ~(1 << this.gameObject.layer)))
+            {
+                Ground gnd = hitInfo.collider.gameObject.GetComponent<Ground>();
+
+                if (gnd != null)
+                {
+                    finalEndPos.y = gnd.SurfaceY() + m_collisionEpsilon;
+                }
+            }
+        }
+
+        finalEndPos.x = Mathf.Clamp(finalEndPos.x, SceneMgr.MinX + m_width / 2, SceneMgr.MaxX - m_width / 2);
+        finalEndPos.y = Mathf.Clamp(finalEndPos.y, SceneMgr.MinY, SceneMgr.MaxY - m_height);
+        return finalEndPos;
+    }
+
+    private bool CheckWalls ()
+    {
+        Vector3 lWall = this.transform.position - ( m_collisionEpsilon + m_width / 2 ) * Vector3.right;
+        Vector3 rWall = this.transform.position + ( m_collisionEpsilon + m_width / 2 ) * Vector3.right;
+
+        if (lWall.x <= SceneMgr.MinX || rWall.x >= SceneMgr.MaxX)
+            return true;
+
+        return Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right) || Physics.Raycast(this.transform.position, -(m_collisionEpsilon - m_width / 2) * Vector3.right + (m_collisionEpsilon + m_width / 2) * Vector3.right);
+    }
 }

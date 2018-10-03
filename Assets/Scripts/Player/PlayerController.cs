@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour
     public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
     public float            AttackCooldown              = 1f;
     public Vector2          ThrowOffset;
+    public float            stunDuration                = 1f;
 
     [Header("Weapons - Punch")]
     public Vector2          PunchOffset;
@@ -88,7 +89,7 @@ public class PlayerController : MonoBehaviour
     public Vector2          SaberOffset;
     public Vector2          SaberHitboxSize;
       
-    [Header("Weapons - Pistol (in progress)")]
+    [Header("Weapons - Pistol")]
     public GameObject       ProjectilePrefab;
     public Vector2 PistolOffset;
 
@@ -130,6 +131,7 @@ public class PlayerController : MonoBehaviour
     // COMBAT
 
     private bool            isAttacking                 = false;
+    private bool            isStunned                   = false;
     
     [SerializeField]
     private LayerMask       playerLayer;
@@ -206,46 +208,51 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // get input
-        float horizontal    = InputMgr.GetAxis((int) m_player,   InputMgr.eAxis.HORIZONTAL);    //Input.GetAxis("Horizontal");
-        float vertical      = InputMgr.GetAxis((int) m_player,   InputMgr.eAxis.VERTICAL);      //Input.GetAxis("Vertical");
-        bool  doJump        = InputMgr.GetButton((int) m_player, InputMgr.eButton.JUMP);        //Input.GetButtonDown("Jump");
-        bool  doDash        = InputMgr.GetButton((int) m_player, InputMgr.eButton.DASH);        //Input.GetButtonDown("Dash");
-        
+        float horizontal = 0, vertical = 0;
+        bool doJump = false, doDash = false;
+
+        if(!isStunned){
+
+            // get input
+            horizontal    = InputMgr.GetAxis((int) m_player,   InputMgr.eAxis.HORIZONTAL);    //Input.GetAxis("Horizontal");
+            vertical      = InputMgr.GetAxis((int) m_player,   InputMgr.eAxis.VERTICAL);      //Input.GetAxis("Vertical");
+            doJump        = InputMgr.GetButton((int) m_player, InputMgr.eButton.JUMP);        //Input.GetButtonDown("Jump");
+            doDash        = InputMgr.GetButton((int) m_player, InputMgr.eButton.DASH);        //Input.GetButtonDown("Dash");
+            
+            // get pick up item input
+            if(InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB) && !grabButtonPressed){
+                if(WeaponList.Count > 0){
+                    PickupWeapon();
+                }
+            }
+            grabButtonPressed = InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB);
+
+            // get throw item input
+            if(InputMgr.GetButton((int) m_player, InputMgr.eButton.TOSS)){
+                if(EquippedWeapon != WeaponPickup.WeaponType.FISTS){
+                    ThrowWeapon();
+                }
+            }
+
+            // get attack input
+            if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
+                isAttacking = true;
+                switch(EquippedWeapon){
+                    case WeaponPickup.WeaponType.FISTS:
+                        PunchAttack();
+                    break;
+                    case WeaponPickup.WeaponType.SABER:
+                        SaberAttack();
+                    break;
+                    case WeaponPickup.WeaponType.PISTOL:
+                        PistolAttack();
+                    break;
+                }
+            }
+        }
 
         // update position
-        UpdateTransform(horizontal, vertical, doJump, doDash);
-
-        // get pick up item input
-        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB) && !grabButtonPressed){
-            if(WeaponList.Count > 0){
-                PickupWeapon();
-            }
-        }
-        grabButtonPressed = InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB);
-
-        // get throw item input
-        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.TOSS)){
-            if(EquippedWeapon != WeaponPickup.WeaponType.FISTS){
-                ThrowWeapon();
-            }
-        }
-
-        // get attack input
-        if(InputMgr.GetButton((int) m_player, InputMgr.eButton.ATTACK) && !isAttacking){
-            isAttacking = true;
-            switch(EquippedWeapon){
-                case WeaponPickup.WeaponType.FISTS:
-                    PunchAttack();
-                break;
-                case WeaponPickup.WeaponType.SABER:
-                    SaberAttack();
-                break;
-                case WeaponPickup.WeaponType.PISTOL:
-                    PistolAttack();
-                break;
-            }
-        }
+        UpdateTransform(horizontal, vertical, doJump, doDash);        
 
 
 
@@ -282,8 +289,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void GetStunned(){
-        print("GET STUNNED " + m_player);
+    public IEnumerator GetStunned(){
+        isStunned = true;
+        yield return new WaitForSeconds(stunDuration);
+        isStunned = false;
     }
 
     // ======================================================================================
@@ -687,21 +696,23 @@ public class PlayerController : MonoBehaviour
     }
 
     private void PunchAttack(){
-        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(PunchOffset, PunchHitboxSize, 0, playerLayer);
+        Collider[] hitTargets = Physics.OverlapBox(PunchOffset,  new Vector3(10, 10, 10), Quaternion.identity, playerLayer);
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
             print("acertou " + hitTargets[i].name);
             hitTargets[i].GetComponent<PlayerController>().TakeDamage(this.m_player);
         }
+        isAttacking = false;
     }
 
     private void SaberAttack(){
-        Collider2D[] hitTargets = Physics2D.OverlapBoxAll(SaberOffset, SaberHitboxSize, 0, playerLayer);
+        Collider[] hitTargets = Physics.OverlapBox(SaberOffset, new Vector3(10, 10, 10), Quaternion.identity, playerLayer);
         print("hit targets length " + hitTargets.Length);
         for(int i = 0; i < hitTargets.Length; i++){
             print("acertou " + hitTargets[i].name);
             hitTargets[i].GetComponent<PlayerController>().TakeDamage(this.m_player);
         }
+        isAttacking = false;
     }
 
     private void PistolAttack(){
@@ -709,6 +720,7 @@ public class PlayerController : MonoBehaviour
         GameObject obj = Instantiate(ProjectilePrefab, transform.position + (Vector3)PistolOffset, Quaternion.identity);
         obj.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
         obj.GetComponent<Projectile>().SetOrigin(this.m_player);
+        isAttacking = false;
     }
 
     void OnDrawGizmosSelected(){
