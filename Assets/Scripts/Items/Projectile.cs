@@ -27,7 +27,7 @@ public class Projectile : MonoBehaviour {
 			transform.Translate(DirectionVector * Time.deltaTime);
 			return;
 		}
-		UpdateTransform();
+		//UpdateTransform();
 	}
 
 	public void SetDirection(Vector3 direction){
@@ -61,7 +61,7 @@ public class Projectile : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other){
-		if(isFalling && other.tag == "Player"){
+		if(!isFalling && other.tag == "Player"){
 			if(tag == "Lethal"){
 				other.GetComponent<PlayerController>().TakeDamage(origin);
 				Destroy(gameObject);

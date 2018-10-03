@@ -211,7 +211,7 @@ public class PlayerController : MonoBehaviour
         float horizontal = 0, vertical = 0;
         bool doJump = false, doDash = false;
 
-        if(!isStunned){
+        if(!isStunned && !GameRef.instance.stopInputs){
 
             // get input
             horizontal    = InputMgr.GetAxis((int) m_player,   InputMgr.eAxis.HORIZONTAL);    //Input.GetAxis("Horizontal");
@@ -221,6 +221,7 @@ public class PlayerController : MonoBehaviour
             
             // get pick up item input
             if(InputMgr.GetButton((int) m_player, InputMgr.eButton.GRAB) && !grabButtonPressed){
+                print(WeaponList.Count);
                 if(WeaponList.Count > 0){
                     PickupWeapon();
                 }
@@ -632,6 +633,7 @@ public class PlayerController : MonoBehaviour
     // ======================================================================================
     // DEBUG METHODS
     // ======================================================================================
+#if UNITY_EDITOR
     private void StartDebug(bool _useDebug)
     {
         GameObject debugBall = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -648,7 +650,7 @@ public class PlayerController : MonoBehaviour
         if (!_useDebug)
             debugBall.SetActive(false);
     }
-
+#endif
     private void PickupWeapon(){
         print("watch start");
         var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -683,9 +685,9 @@ public class PlayerController : MonoBehaviour
 
     private void ThrowWeapon(){
         //inicialmente só vou fazer dropar a arma
-        WeaponObject.transform.position = transform.position + (Vector3)ThrowOffset;
+        WeaponObject.transform.position = transform.position + new Vector3(transform.localScale.x*ThrowOffset.x, ThrowOffset.y, 0);
         ToggleWeaponActive(WeaponObject, true);
-        WeaponObject.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
+        WeaponObject.GetComponent<Projectile>().MoveProjectile(new Vector3(transform.localScale.x* 5, 0, 0));
         EquippedWeapon = WeaponPickup.WeaponType.FISTS;
         WeaponObject = null;
     }
@@ -696,31 +698,27 @@ public class PlayerController : MonoBehaviour
     }
 
     private void PunchAttack(){
-        Collider[] hitTargets = Physics.OverlapBox(PunchOffset,  new Vector3(10, 10, 10), Quaternion.identity, playerLayer);
-        print("hit targets length " + hitTargets.Length);
+        Collider[] hitTargets = Physics.OverlapBox(transform.position + new Vector3(transform.localScale.x *PunchOffset.x, PunchOffset.y, 0), 0.2f*Vector3.one ,Quaternion.identity, playerLayer);
         for(int i = 0; i < hitTargets.Length; i++){
-            print("acertou " + hitTargets[i].name);
             hitTargets[i].GetComponent<PlayerController>().TakeDamage(this.m_player);
         }
-        isAttacking = false;
+        StartCoroutine(AttackDelay());
     }
 
     private void SaberAttack(){
-        Collider[] hitTargets = Physics.OverlapBox(SaberOffset, new Vector3(10, 10, 10), Quaternion.identity, playerLayer);
-        print("hit targets length " + hitTargets.Length);
+        Collider[] hitTargets = Physics.OverlapBox(transform.position + new Vector3(transform.localScale.x *SaberOffset.x, SaberOffset.y, 0), 0.2f*Vector3.one, Quaternion.identity, playerLayer);
         for(int i = 0; i < hitTargets.Length; i++){
-            print("acertou " + hitTargets[i].name);
             hitTargets[i].GetComponent<PlayerController>().TakeDamage(this.m_player);
         }
-        isAttacking = false;
+        StartCoroutine(AttackDelay());
     }
 
     private void PistolAttack(){
         // spawnar um projetil e mandar ele pra frente
-        GameObject obj = Instantiate(ProjectilePrefab, transform.position + (Vector3)PistolOffset, Quaternion.identity);
-        obj.GetComponent<Projectile>().MoveProjectile(transform.right * 5);
+        GameObject obj = Instantiate(ProjectilePrefab, transform.position + new Vector3(transform.localScale.x*PistolOffset.x, PistolOffset.y, 0), Quaternion.identity);
+        obj.GetComponent<Projectile>().MoveProjectile(new Vector3(transform.localScale.x*10, 0, 0));
         obj.GetComponent<Projectile>().SetOrigin(this.m_player);
-        isAttacking = false;
+        StartCoroutine(AttackDelay());
     }
 
     void OnDrawGizmosSelected(){
@@ -737,5 +735,10 @@ public class PlayerController : MonoBehaviour
             Gizmos.color = Color.green;
             Gizmos.DrawCube(transform.position + (Vector3)PistolOffset, new Vector3(0.25f, 0.25f, 0));
         }
+    }
+
+    IEnumerator AttackDelay(){
+        yield return new WaitForSeconds(AttackCooldown);
+        isAttacking = false;
     }
 }
