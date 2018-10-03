@@ -182,6 +182,8 @@ public class PlayerController : MonoBehaviour
             Debug.Log("This is a lawless battle (Cannot find 'GameRef' script)");
         }
 
+        gameReferee.identifyPlayers((int)m_player);
+
         m_dashTimer = m_dashDuration;
         m_dashDirection     = Vector2.right;
         
@@ -258,7 +260,6 @@ public class PlayerController : MonoBehaviour
 
     // ======================================================================================
     public void TakeDamage(ePlayer player)
-    //public void TakeDamage()
     {
         print(m_player + " is taking damage");
         if (GameMgr.IsPaused || GameMgr.IsGameOver)
@@ -272,6 +273,7 @@ public class PlayerController : MonoBehaviour
         {
             //m_deathSFX.Play();
             gameReferee.addScore(100, (int)player);
+            gameReferee.murderWitness((int)m_player);
             m_animator.SetState(PlayerAnimatorController.eStates.Dead);
         }
         else
