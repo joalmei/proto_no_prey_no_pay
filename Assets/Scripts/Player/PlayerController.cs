@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
     public List<GameObject> WeaponList                  = new List<GameObject>();
     public WeaponPickup.WeaponType       EquippedWeapon              = WeaponPickup.WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas WeaponPickup.WeaponType está no weaponpickup)
     public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
-    public float            AttackCooldown              = 1f;
+    public float            AttackCooldown              = 0.4f;
     public Vector2          ThrowOffset;
     public float            stunDuration                = 1f;
 
@@ -706,7 +706,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void SaberAttack(){
-        Collider[] hitTargets = Physics.OverlapBox(transform.position + new Vector3(transform.localScale.x *SaberOffset.x, SaberOffset.y, 0), 0.2f*Vector3.one, Quaternion.identity, playerLayer);
+        Collider[] hitTargets = Physics.OverlapBox(transform.position + new Vector3(transform.localScale.x *SaberOffset.x, SaberOffset.y, 0), 0.4f*Vector3.one, Quaternion.identity, playerLayer);
         for(int i = 0; i < hitTargets.Length; i++){
             hitTargets[i].GetComponent<PlayerController>().TakeDamage(this.m_player);
         }
@@ -716,7 +716,7 @@ public class PlayerController : MonoBehaviour
     private void PistolAttack(){
         // spawnar um projetil e mandar ele pra frente
         GameObject obj = Instantiate(ProjectilePrefab, transform.position + new Vector3(transform.localScale.x*PistolOffset.x, PistolOffset.y, 0), Quaternion.identity);
-        obj.GetComponent<Projectile>().MoveProjectile(new Vector3(transform.localScale.x*10, 0, 0));
+        obj.GetComponent<Projectile>().MoveProjectile(new Vector3(transform.localScale.x*30, 0, 0));
         obj.GetComponent<Projectile>().SetOrigin(this.m_player);
         StartCoroutine(AttackDelay());
     }
