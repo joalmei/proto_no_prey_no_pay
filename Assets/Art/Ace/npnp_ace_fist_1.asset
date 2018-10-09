@@ -9,11 +9,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c10c0be6d28fe4d539c4a39822fe301c, type: 3}
-  m_Name: npnp_ace_idle_overlay_6
+  m_Name: npnp_ace_fist_1
   m_EditorClassIdentifier: 
   m_ApiVersion: 4
-  m_Sprite: {fileID: 21300012, guid: 1b61ef443c737464794e85b46493abe9, type: 3}
-  m_SharedMesh: {fileID: 43117311072022658}
+  m_Sprite: {fileID: 21300002, guid: 29de263e41e746b4b8b0b581db3343a3, type: 3}
+  m_SharedMesh: {fileID: 43452194136622660}
   pivotPoint: {x: 0, y: 0}
   texVertices: []
   edges: []
@@ -21,12 +21,12 @@ MonoBehaviour:
   indices: 
   bindPoses: []
   m_SharedMaterials: []
---- !u!43 &43117311072022658
+--- !u!43 &43452194136622660
 Mesh:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: npnp_ace_idle_overlay_6
+  m_Name: npnp_ace_fist_1
   serializedVersion: 9
   m_SubMeshes:
   - serializedVersion: 2
@@ -37,14 +37,30 @@ Mesh:
     firstVertex: 0
     vertexCount: 4
     localAABB:
-      m_Center: {x: 0, y: 0.000000009313226, z: 0}
-      m_Extent: {x: 0.135, y: 0.06000001, z: 0}
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0.145, y: 0.145, z: 0}
   m_Shapes:
     vertices: []
     shapes: []
     channels: []
     fullWeights: []
-  m_BindPose: []
+  m_BindPose:
+  - e00: 0.11295196
+    e01: -0.99359983
+    e02: 0
+    e03: 0.0864711
+    e10: 0.99359983
+    e11: 0.11295196
+    e12: 0
+    e13: -0.018354986
+    e20: 0
+    e21: 0
+    e22: 1
+    e23: 0
+    e30: 0
+    e31: 0
+    e32: 0
+    e33: 1
   m_BoneNameHashes: 
   m_RootBoneNameHash: 0
   m_MeshCompression: 0
@@ -114,7 +130,7 @@ Mesh:
       format: 11
       dimension: 4
     m_DataSize: 320
-    _typelessdata: 713d0abe94c2753d000000000000000000000000000080bf0000803f0000000000000000000080bf713d0a3e94c2753d000000000000000000000000000080bf0000803f0000000000000000000080bf713d0abe8fc275bd000000000000000000000000000080bf0000803f0000000000000000000080bf713d0a3e8fc275bd000000000000000000000000000080bf0000803f0000000000000000000080bf30fd523fa95d093e90f7783fa95d093e30fd523f8fc1793d90f7783f8fc1793d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    _typelessdata: e17a14bee17a143e000000000000000000000000000080bf0000803f0000000000000000000080bfe17a143ee17a143e000000000000000000000000000080bf0000803f0000000000000000000080bfe17a14bee17a14be000000000000000000000000000080bf0000803f0000000000000000000080bfe17a143ee17a14be000000000000000000000000000080bf0000803f0000000000000000000080bf7b06223fffff7f3f0000803fffff7f3f7b06223f89da953e0000803f89da953e0000803f000000000000000000000000000000000000000000000000000000000000803f000000000000000000000000000000000000000000000000000000000000803f000000000000000000000000000000000000000000000000000000000000803f00000000000000000000000000000000000000000000000000000000
   m_CompressedMesh:
     m_Vertices:
       m_NumItems: 0
@@ -168,15 +184,15 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 0, y: 0.000000009313226, z: 0}
-    m_Extent: {x: 0.135, y: 0.06000001, z: 0}
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0.145, y: 0.145, z: 0}
   m_MeshUsageFlags: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   m_MeshMetrics[0]: 1
   m_MeshMetrics[1]: 1
   m_MeshOptimized: 0
---- !u!114 &114312935543901270
+--- !u!114 &114177392480978894
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -185,15 +201,47 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e715ea371f114f4a8d2584ad476634d, type: 3}
-  m_Name: npnp_ace_idle_overlay_6_Data
+  m_Name: npnp_ace_fist_1_Data
   m_EditorClassIdentifier: 
-  m_PivotPoint: {x: 163.5, y: 16}
+  m_PivotPoint: {x: 64.5, y: 26.5}
   m_Vertices:
-  - {x: 150, y: 22.000002}
-  - {x: 177, y: 22.000002}
-  - {x: 150, y: 10}
-  - {x: 177, y: 10}
-  m_BoneWeights: []
+  - {x: 50, y: 41}
+  - {x: 79, y: 41}
+  - {x: 50, y: 12}
+  - {x: 79, y: 12}
+  m_BoneWeights:
+  - weight0: 1
+    weight1: 0
+    weight2: 0
+    weight3: 0
+    boneIndex0: 0
+    boneIndex1: -1
+    boneIndex2: -1
+    boneIndex3: -1
+  - weight0: 1
+    weight1: 0
+    weight2: 0
+    weight3: 0
+    boneIndex0: 0
+    boneIndex1: -1
+    boneIndex2: -1
+    boneIndex3: -1
+  - weight0: 1
+    weight1: 0
+    weight2: 0
+    weight3: 0
+    boneIndex0: 0
+    boneIndex1: -1
+    boneIndex2: -1
+    boneIndex3: -1
+  - weight0: 1
+    weight1: 0
+    weight2: 0
+    weight3: 0
+    boneIndex0: 0
+    boneIndex1: -1
+    boneIndex2: -1
+    boneIndex3: -1
   m_Edges:
   - index1: 0
     index2: 1
@@ -205,5 +253,27 @@ MonoBehaviour:
     index2: 3
   m_Holes: []
   m_Indices: 000000000100000002000000020000000100000003000000
-  m_BindPoses: []
+  m_BindPoses:
+  - bindPose:
+      e00: 0.11295196
+      e01: -0.99359983
+      e02: 0
+      e03: 0.0864711
+      e10: 0.99359983
+      e11: 0.11295196
+      e12: 0
+      e13: -0.018354986
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: -0.1132813
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    boneLength: 0.17
+    path: ForearmB/ArmB/HandB
+    name: HandB
+    color: {r: 1, g: 0, b: 0, a: 1}
+    zOrder: 0
   m_Blendshapes: []

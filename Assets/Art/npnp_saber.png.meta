@@ -1,11 +1,9 @@
 fileFormatVersion: 2
-guid: 770b690a5b3335346a5a789a589c041d
+guid: d130b8afd533c0d44af20a674b0b79f4
 TextureImporter:
   fileIDToRecycleName:
-    21300000: npnp_ace_grapping_0
-    21300002: npnp_ace_grapping_1
-    21300004: npnp_ace_grapping_2
-    21300006: npnp_ace_grapping_3
+    21300000: npnp_saber_0
+    21300002: npnp_saber_1
   externalObjects: {}
   serializedVersion: 7
   mipmaps:
@@ -88,81 +86,41 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: npnp_ace_grapping_0
+      name: npnp_saber_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 27
-        width: 96
-        height: 103
-      alignment: 9
-      pivot: {x: 0.47395834, y: 0.5}
+        y: 45.5
+        width: 174
+        height: 45.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ed306b61895847147b1a0d338dcd0b09
+      spriteID: 371851d6b63ccbf41b78a5431239773b
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: npnp_ace_grapping_1
+      name: npnp_saber_1
       rect:
         serializedVersion: 2
-        x: 91
-        y: 56.000004
-        width: 96
-        height: 97
-      alignment: 9
-      pivot: {x: 0.5260417, y: 0.52577317}
+        x: 0
+        y: 0.5
+        width: 174
+        height: 45.5
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4e8e2766cba37914a950c1060d066a05
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: npnp_ace_grapping_2
-      rect:
-        serializedVersion: 2
-        x: 82
-        y: 0
-        width: 31
-        height: 37
-      alignment: 9
-      pivot: {x: 0.5, y: 0.43243244}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: bf69caf54bca98c4bb8c45cf1a3f62f2
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: npnp_ace_grapping_3
-      rect:
-        serializedVersion: 2
-        x: 119
-        y: 1.000001
-        width: 47
-        height: 40
-      alignment: 9
-      pivot: {x: 0.49999997, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 58a9f63d9f4ce73478adead159d66bd7
+      spriteID: b43b46faf49ed2743be57f405280a801
       vertices: []
       indices: 
       edges: []
@@ -170,7 +128,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 53f36f021b76e99468eceebcdefc0df1
+    spriteID: 682cdd8e400f12a4baa017597da5ee02
     vertices: []
     indices: 
     edges: []
@@ -178,6 +136,6 @@ TextureImporter:
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
-  userData: 636746305862608677
+  userData: 
   assetBundleName: 
   assetBundleVariant: 
