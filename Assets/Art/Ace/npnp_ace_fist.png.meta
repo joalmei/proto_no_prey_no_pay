@@ -1,11 +1,9 @@
 fileFormatVersion: 2
-guid: 770b690a5b3335346a5a789a589c041d
+guid: 29de263e41e746b4b8b0b581db3343a3
 TextureImporter:
   fileIDToRecycleName:
-    21300000: npnp_ace_grapping_0
-    21300002: npnp_ace_grapping_1
-    21300004: npnp_ace_grapping_2
-    21300006: npnp_ace_grapping_3
+    21300000: npnp_ace_fist_0
+    21300002: npnp_ace_fist_1
   externalObjects: {}
   serializedVersion: 7
   mipmaps:
@@ -88,81 +86,41 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: npnp_ace_grapping_0
+      name: npnp_ace_fist_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 27
-        width: 96
-        height: 103
-      alignment: 9
-      pivot: {x: 0.47395834, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ed306b61895847147b1a0d338dcd0b09
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: npnp_ace_grapping_1
-      rect:
-        serializedVersion: 2
-        x: 91
-        y: 56.000004
-        width: 96
-        height: 97
-      alignment: 9
-      pivot: {x: 0.5260417, y: 0.52577317}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4e8e2766cba37914a950c1060d066a05
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: npnp_ace_grapping_2
-      rect:
-        serializedVersion: 2
-        x: 82
         y: 0
-        width: 31
-        height: 37
+        width: 35
+        height: 34
       alignment: 9
-      pivot: {x: 0.5, y: 0.43243244}
+      pivot: {x: 0.42857143, y: 0.42647058}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bf69caf54bca98c4bb8c45cf1a3f62f2
+      spriteID: ee23d2e7d9b5e5048a2710f283f7b515
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: npnp_ace_grapping_3
+      name: npnp_ace_fist_1
       rect:
         serializedVersion: 2
-        x: 119
-        y: 1.000001
-        width: 47
-        height: 40
+        x: 45
+        y: 7
+        width: 34
+        height: 34
       alignment: 9
-      pivot: {x: 0.49999997, y: 0.5}
+      pivot: {x: 0.5735294, y: 0.5735294}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 58a9f63d9f4ce73478adead159d66bd7
+      spriteID: 6c06c06809c1879458e54e3bee0d438a
       vertices: []
       indices: 
       edges: []
@@ -170,7 +128,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 53f36f021b76e99468eceebcdefc0df1
+    spriteID: 3fe72bbd114417c45b5025582f827ee1
     vertices: []
     indices: 
     edges: []
@@ -178,6 +136,6 @@ TextureImporter:
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
-  userData: 636746305862608677
+  userData: 636745983271821419
   assetBundleName: 
   assetBundleVariant: 
