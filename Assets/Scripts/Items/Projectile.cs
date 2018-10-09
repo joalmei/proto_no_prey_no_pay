@@ -67,7 +67,7 @@ public class Projectile : MonoBehaviour {
 				Destroy(gameObject);
 			}
 			else{
-				other.GetComponent<PlayerController>().GetStunned(origin);
+				other.GetComponent<PlayerController>().GetStunned();
 				SetDirection(Vector3.zero);
 				isFalling = true;
 			}
