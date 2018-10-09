@@ -12,24 +12,12 @@ public class GameMgr : MonoBehaviour
     public static bool IsPaused     { get; private set; }
     public static bool IsGameOver   { get; private set; }
 
-    private GameRef gameReferee; //Necessário para se comunicar com o árbitro
-
     // ======================================================================================
     // PUBLIC MEMBERS
     // ======================================================================================
     public void Start()
     {
         IsPaused = false;
-
-        GameObject gameRefereeObject = GameObject.FindWithTag("GameReferee");
-        if (gameRefereeObject != null)
-        {
-            gameReferee = gameRefereeObject.GetComponent<GameRef>();
-        }
-        if (gameReferee == null)
-        {
-            Debug.Log("This is a lawless battle (Cannot find 'GameRef' script)");
-        }
     }
 
     // ======================================================================================
@@ -39,10 +27,6 @@ public class GameMgr : MonoBehaviour
         {
             DeltaTime = Time.deltaTime;
             Timer += DeltaTime;
-            if (gameReferee.endGame)
-            {
-                RestartGame();
-            }
         }
         else
         {
