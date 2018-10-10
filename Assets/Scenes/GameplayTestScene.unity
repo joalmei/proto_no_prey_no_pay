@@ -1600,6 +1600,11 @@ Prefab:
       propertyPath: PistolSprite
       value: 
       objectReference: {fileID: 73735581}
+    - target: {fileID: 95525237010383830, guid: 8916a28f82c517642bd1fc5eceee0ee8,
+        type: 2}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 6cd04cfdca7407a4b8a00311898436ff, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8916a28f82c517642bd1fc5eceee0ee8, type: 2}
   m_IsPrefabAsset: 0
@@ -2985,6 +2990,11 @@ Prefab:
       propertyPath: m_Color.b
       value: 0.13007298
       objectReference: {fileID: 0}
+    - target: {fileID: 95525237010383830, guid: 8916a28f82c517642bd1fc5eceee0ee8,
+        type: 2}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 6cd04cfdca7407a4b8a00311898436ff, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8916a28f82c517642bd1fc5eceee0ee8, type: 2}
   m_IsPrefabAsset: 0
