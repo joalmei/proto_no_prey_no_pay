@@ -77,6 +77,8 @@ public class PlayerController : MonoBehaviour
     public List<GameObject> WeaponList                  = new List<GameObject>();
     public WeaponPickup.WeaponType       EquippedWeapon              = WeaponPickup.WeaponType.FISTS; //talvez mudar pra privado, talvez usar Enum (mas WeaponPickup.WeaponType está no weaponpickup)
     public GameObject       WeaponObject                = null; //n pensei num nome melhor, é o objeto do item q foi pegado
+    public AnimatedSpriteMesh SpriteMesh;
+
     public float            AttackCooldown              = 0.4f;
     public Vector2          ThrowOffset;
     public float            stunDuration                = 1f;
@@ -86,12 +88,14 @@ public class PlayerController : MonoBehaviour
     public Vector2          PunchHitboxSize;
 
     [Header("Weapons - Saber")]
+    public GameObject       SaberSprite;
     public Vector2          SaberOffset;
     public Vector2          SaberHitboxSize;
       
     [Header("Weapons - Pistol")]
+    public GameObject       PistolSprite;
     public GameObject       ProjectilePrefab;
-    public Vector2 PistolOffset;
+    public Vector2          PistolOffset;
 
     // SFX
     //[Header("SFX")]
@@ -680,6 +684,16 @@ public class PlayerController : MonoBehaviour
         WeaponList.Remove(WeaponObject);
         ToggleWeaponActive(WeaponObject, false);
 
+        if(EquippedWeapon == WeaponPickup.WeaponType.SABER){
+            SaberSprite.SetActive(true);
+            SpriteMesh.index = 1;
+        }
+
+        if(EquippedWeapon == WeaponPickup.WeaponType.PISTOL){
+            PistolSprite.SetActive(true);
+            SpriteMesh.index = 2;
+        }
+
         watch.Stop();
         var elapsedMs = watch.ElapsedMilliseconds;
         print("time elapsed " + elapsedMs);
@@ -687,6 +701,14 @@ public class PlayerController : MonoBehaviour
 
     private void ThrowWeapon(){
         //inicialmente só vou fazer dropar a arma
+        SpriteMesh.index = 0;
+        if(EquippedWeapon == WeaponPickup.WeaponType.SABER){
+            SaberSprite.SetActive(false);
+        }
+        if(EquippedWeapon == WeaponPickup.WeaponType.PISTOL){
+            PistolSprite.SetActive(false);
+        }
+
         WeaponObject.transform.position = transform.position + new Vector3(transform.localScale.x*ThrowOffset.x, ThrowOffset.y, 0);
         ToggleWeaponActive(WeaponObject, true);
         WeaponObject.GetComponent<Projectile>().MoveProjectile(new Vector3(transform.localScale.x* 5, 0, 0));
@@ -695,7 +717,8 @@ public class PlayerController : MonoBehaviour
     }
 
     private void ToggleWeaponActive(GameObject WeaponObject, bool status){
-        WeaponObject.GetComponent<MeshRenderer>().enabled = status;
+        //WeaponObject.GetComponent<MeshRenderer>().enabled = status;
+        WeaponObject.transform.Find("Sprite").gameObject.SetActive(status);
         WeaponObject.GetComponent<BoxCollider>().enabled = status;
     }
 

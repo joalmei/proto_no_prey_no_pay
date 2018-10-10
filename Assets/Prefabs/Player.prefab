@@ -2900,13 +2900,16 @@ MonoBehaviour:
   WeaponList: []
   EquippedWeapon: 0
   WeaponObject: {fileID: 0}
+  SpriteMesh: {fileID: 0}
   AttackCooldown: 0.2
   ThrowOffset: {x: 0.25, y: 0.25}
   stunDuration: 1
   PunchOffset: {x: 0.5, y: 0.25}
   PunchHitboxSize: {x: 0.3, y: 0.5}
+  SaberSprite: {fileID: 0}
   SaberOffset: {x: 0.7, y: 0.25}
   SaberHitboxSize: {x: 0.75, y: 0.3}
+  PistolSprite: {fileID: 0}
   ProjectilePrefab: {fileID: 1928193362142504, guid: e525d00235cc6c1459bd6656a01493f9,
     type: 2}
   PistolOffset: {x: 0.5, y: 0.25}
@@ -5148,7 +5151,7 @@ SpriteRenderer:
   m_Size: {x: 1.4766667, y: 0.85}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!212 &212983128067350212
