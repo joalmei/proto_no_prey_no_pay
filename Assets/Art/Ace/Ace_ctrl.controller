@@ -46,6 +46,31 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!1102 &1102023242989886236
+AnimatorState:
+  serializedVersion: 5
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: ace_throw_right
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: 2924c53ec8424154a95ce3527b2e8148, type: 2}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1102 &1102038535921395190
 AnimatorState:
   serializedVersion: 5
@@ -381,7 +406,7 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 1102151442007777104}
-    m_Position: {x: 252, y: 0, z: 0}
+    m_Position: {x: -216, y: 372, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1102006146843257764}
     m_Position: {x: 360, y: 60, z: 0}
@@ -411,7 +436,7 @@ AnimatorStateMachine:
     m_Position: {x: 11, y: 545, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1102594980826052106}
-    m_Position: {x: 1092, y: 144, z: 0}
+    m_Position: {x: -216, y: 180, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1102960120389225910}
     m_Position: {x: -504, y: 300, z: 0}
@@ -421,6 +446,9 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: 1102862487166675386}
     m_Position: {x: 151, y: 805, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 1102023242989886236}
+    m_Position: {x: 186, y: 870, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -430,4 +458,4 @@ AnimatorStateMachine:
   m_EntryPosition: {x: -108, y: 264, z: 0}
   m_ExitPosition: {x: 840, y: 96, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
-  m_DefaultState: {fileID: 1102895137818792734}
+  m_DefaultState: {fileID: 1102151442007777104}
